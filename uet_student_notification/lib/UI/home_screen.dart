@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/home_bloc.dart';
+import 'package:uet_student_notification/UI/list_posts_screen.dart';
 import 'package:uet_student_notification/UI/log_in_screen.dart';
 
 class HomeScreen extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     final bloc = HomeBLoc();
@@ -13,17 +16,26 @@ class HomeScreen extends StatelessWidget {
       bloc: bloc,
       child: StreamBuilder<bool>(
         stream: bloc.isLoggedIn,
-        builder: (context, snapshot){
-            final isLoggedIn = snapshot.data;
-            if(isLoggedIn != null && isLoggedIn){
-              return Center(
-                child: Text("Logged In"),
-              );
-            }
+        builder: (context, snapshot) {
+          final isLoggedIn = snapshot.data;
+          if (isLoggedIn == null) {
+            return _buildWelcome();
+          }
 
-            return LogInScreen();
+          if (isLoggedIn) {
+            return ListPostsScreen();
+          }
+
+          return LogInScreen();
         },
       ),
     );
+  }
+
+  Widget _buildWelcome() {
+    return Container(
+        alignment: Alignment.center,
+        constraints: BoxConstraints.expand(),
+        color: Colors.white);
   }
 }

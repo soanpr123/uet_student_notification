@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uet_student_notification/BLoC/bloc.dart';
-import 'package:uet_student_notification/common.dart' as Common;
+import 'package:uet_student_notification/Common/common.dart' as Common;
 
 class HomeBLoc extends Bloc{
   final _controller = StreamController<bool>();
