@@ -16,4 +16,8 @@ class APIClient{
   void doGetPostDetails(){
 
   }
+
+  void doUpdatePostStatus(){
+
+  }
 }

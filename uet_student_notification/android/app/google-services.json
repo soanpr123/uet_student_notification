@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "332597126436",
+    "firebase_url": "https://uet-student-notification.firebaseio.com",
+    "project_id": "uet-student-notification",
+    "storage_bucket": "uet-student-notification.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:332597126436:android:b55fcdcc055c0d348f7fb1",
+        "android_client_info": {
+          "package_name": "com.uet.student.uet_student_notification"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "332597126436-e38jeuqn8471779ojl3b65dpmidrer66.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYXi6NFB4yzO_NkcD8LJmTtInN6AfREME"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "332597126436-e38jeuqn8471779ojl3b65dpmidrer66.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

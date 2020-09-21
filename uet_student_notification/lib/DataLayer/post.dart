@@ -1,9 +1,11 @@
 class Post {
   final int id;
-  final String title;
-  final String content;
-  final String date;
+  String title;
+  String content;
+  String date;
   bool isRead;
+
+  Post(this.id);
 
   Post.fromJson(Map json)
       : id = json["post_id"],
