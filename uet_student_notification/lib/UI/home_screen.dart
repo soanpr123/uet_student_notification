@@ -15,16 +15,16 @@ class HomeScreen extends StatelessWidget {
       bloc.checkLoggedIn();
       _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
-          print("onMessage: $message");
+          print("UET onMessage: $message");
           // _showItemDialog(message);
         },
         onBackgroundMessage: myBackgroundMessageHandler,
         onLaunch: (Map<String, dynamic> message) async {
-          print("onLaunch: $message");
+          print("UET onLaunch: $message");
           // _navigateToItemDetail(message);
         },
         onResume: (Map<String, dynamic> message) async {
-          print("onResume: $message");
+          print("UET onResume: $message");
           // _navigateToItemDetail(message);
         },
       );
@@ -39,7 +39,6 @@ class HomeScreen extends StatelessWidget {
         assert(token != null);
         print("Push Messaging token: $token");
       });
-      _firebaseMessaging.subscribeToTopic("matchscore");
     });
 
     return BlocProvider<HomeBLoc>(
@@ -78,5 +77,9 @@ Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
   if (message.containsKey('notification')) {
     final dynamic notification = message['notification'];
   }
+
+  /*
+  * {notification: {title: Test ne, body: Test xem sao}, data: {click_action: FLUTTER_NOTIFICATION_CLICK}}
+  * */
 
 }
