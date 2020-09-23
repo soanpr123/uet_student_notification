@@ -8,14 +8,11 @@ import 'package:uet_student_notification/Common/common.dart' as Common;
 import 'package:uet_student_notification/DataLayer/post.dart';
 
 ProgressDialog progressDialog;
-class ListPostsScreen extends StatelessWidget{
 
-  final RefreshController _refreshController = RefreshController(initialRefresh: false);
-  void _onRefresh() async{
-    await Future.delayed(Duration(milliseconds: 1000));
-    _refreshController.refreshCompleted();
-  }
-  
+class ListPostsScreen extends StatelessWidget {
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
   @override
   Widget build(BuildContext context) {
     final bloc = ListPostsBloc();
@@ -25,6 +22,7 @@ class ListPostsScreen extends StatelessWidget{
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Future.delayed(Duration(milliseconds: 300), () async {
+        progressDialog.show();
         bloc.loadListPosts();
       });
     });
@@ -38,7 +36,7 @@ class ListPostsScreen extends StatelessWidget{
     );
   }
 
-  Widget _buildBody(ListPostsBloc bloc){
+  Widget _buildBody(ListPostsBloc bloc) {
     return Align(
       alignment: Alignment.topLeft,
       child: SafeArea(
@@ -59,40 +57,47 @@ class ListPostsScreen extends StatelessWidget{
     );
   }
 
-  Widget _buildResults(ListPostsBloc bloc){
+  Widget _buildResults(ListPostsBloc bloc) {
     return StreamBuilder<List<Post>>(
       stream: bloc.listPosts,
       builder: (context, snapshot) {
-          final results = snapshot.data;
+        final results = snapshot.data;
 
-          if(results == null){
-            return Container(child: Text("Loading..."),
-            alignment: Alignment.center);
-          }
+        if (results == null) {
+          return Container(
+              child: Text("Loading..."), alignment: Alignment.center);
+        }
 
-          if(results.isEmpty){
-            return Container(child: Text("No posts"),
-                alignment: Alignment.center);
-          }
+        progressDialog.hide();
+        if (results.isEmpty) {
+          return Container(
+              child: Text("No posts"), alignment: Alignment.center);
+        }
 
-          return _buildList(results);
+        return _buildList(results, bloc);
       },
     );
   }
 
-  Widget _buildList(List<Post> posts){
+  Widget _buildList(List<Post> posts, ListPostsBloc bloc) {
     return SmartRefresher(
       enablePullDown: true,
       enablePullUp: false,
       controller: _refreshController,
-      onRefresh: _onRefresh,
+      onRefresh: () async {
+        await Future.delayed(Duration(milliseconds: 1000));
+        _refreshController.refreshCompleted();
+        progressDialog.show();
+        bloc.loadListPosts();
+        progressDialog.hide();
+      },
       child: ListView.separated(
           itemBuilder: (context, index) {
             final post = posts[index];
             return ListTile(
               title: Text(post.title),
-              subtitle: Text(post.title),
-              onTap: (){
+              subtitle: Text(post.date),
+              onTap: () {
                 //do something
               },
             );
