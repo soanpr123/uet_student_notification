@@ -21,8 +21,8 @@ class PostDetailsScreen extends StatelessWidget {
         isDismissible: false, type: ProgressDialogType.Normal);
     progressDialog.style(message: "Loading posts...");
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      progressDialog.show();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async{
+      await progressDialog.show();
       bloc.loadPostDetails(post.id);
     });
 

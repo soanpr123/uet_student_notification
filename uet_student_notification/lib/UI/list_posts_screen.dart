@@ -24,7 +24,7 @@ class ListPostsScreen extends StatelessWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Future.delayed(Duration(milliseconds: 300), () async {
-        progressDialog.show();
+        await progressDialog.show();
         bloc.loadListPosts();
       });
     });

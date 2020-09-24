@@ -8,6 +8,7 @@ import 'package:uet_student_notification/Common/navigation_extension.dart';
 import 'package:uet_student_notification/UI/list_posts_screen.dart';
 
 ProgressDialog progressDialog;
+
 class LogInScreen extends StatelessWidget {
   final usernameTextController = TextEditingController();
   final passwordTextController = TextEditingController();
@@ -63,12 +64,20 @@ class LogInScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(Common.PADDING),
                 child: _buildEnterPassword(),
               ),
-              Visibility(
-                visible: false,
-                child: Padding(
-                  padding: const EdgeInsets.all(Common.PADDING),
-                  child: _buildEnterPassword(),
-                ),
+              StreamBuilder<bool>(
+                stream: bloc.isShowError,
+                builder: (context, snapshot) {
+                  return Visibility(
+                    visible: snapshot.data ?? false,
+                    child: Padding(
+                      padding: const EdgeInsets.all(Common.PADDING),
+                      child: Text(
+                        "Login error. Please try again.",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  );
+                },
               ),
               Padding(
                 padding: const EdgeInsets.all(Common.PADDING),
@@ -133,14 +142,15 @@ class LogInScreen extends StatelessWidget {
                 .doLogin(
                     usernameTextController.text, passwordTextController.text)
                 .then((value) {
-                  progressDialog.hide();
-                  if (value) {
-                    usernameTextController.text = "";
-                    passwordTextController.text = "";
-                    context.replaceWith(ListPostsScreen());
-                  } else {
-                    passwordTextController.text = "";
-                  }
+              progressDialog.hide();
+              if (value) {
+                usernameTextController.text = "";
+                passwordTextController.text = "";
+                context.replaceWith(ListPostsScreen());
+              } else {
+                bloc.setShowError(true);
+                passwordTextController.text = "";
+              }
             });
           },
         ),
