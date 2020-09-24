@@ -6,6 +6,8 @@ import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/list_posts_bloc.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
 import 'package:uet_student_notification/DataLayer/post.dart';
+import 'package:uet_student_notification/Common/navigation_extension.dart';
+import 'package:uet_student_notification/UI/post_details_screen.dart';
 
 ProgressDialog progressDialog;
 
@@ -87,9 +89,7 @@ class ListPostsScreen extends StatelessWidget {
       onRefresh: () async {
         await Future.delayed(Duration(milliseconds: 1000));
         _refreshController.refreshCompleted();
-        progressDialog.show();
         bloc.loadListPosts();
-        progressDialog.hide();
       },
       child: ListView.separated(
           itemBuilder: (context, index) {
@@ -98,7 +98,7 @@ class ListPostsScreen extends StatelessWidget {
               title: Text(post.title),
               subtitle: Text(post.date),
               onTap: () {
-                //do something
+                context.navigateTo(PostDetailsScreen(post: post));
               },
             );
           },

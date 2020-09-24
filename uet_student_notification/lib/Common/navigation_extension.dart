@@ -12,4 +12,7 @@ extension NavigationExtension on BuildContext{
         MaterialPageRoute(builder: (context) => destination)
     );
   }
+  close(){
+    Navigator.of(this).pop();
+  }
 }
