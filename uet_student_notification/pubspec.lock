@@ -170,6 +170,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.2"
+  loadmore:
+    dependency: "direct main"
+    description:
+      name: loadmore
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.4"
   matcher:
     dependency: transitive
     description:
@@ -267,7 +274,7 @@ packages:
       name: shared_preferences
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.11"
+    version: "0.5.12"
   shared_preferences_linux:
     dependency: transitive
     description:

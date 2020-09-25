@@ -3,7 +3,7 @@ class Post {
   String title;
   String content;
   String date;
-  bool isRead;
+  bool isRead = false;
 
   Post(this.id);
 

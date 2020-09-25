@@ -37,7 +37,8 @@ class HomeScreen extends StatelessWidget {
       });
       _firebaseMessaging.getToken().then((String token) {
         assert(token != null);
-        print("Push Messaging token: $token");
+        print("FCM Token: $token");
+        bloc.saveFcmToken(token);
       });
     });
 

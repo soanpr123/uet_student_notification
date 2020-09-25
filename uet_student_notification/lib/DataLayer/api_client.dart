@@ -8,12 +8,12 @@ class APIClient {
   final _baseUrl = "112.137.129.31";
   final _contextRoot = 'api';
   final _login = "auth/login";
+  final _updateFCMToken = "v1/update-firebase-token";
 
-  Future<User> doLogin(String username, String password) async{
+  Future<User> doLogin(String username, String password) async {
     final result = await postRequest(
-        path: _login,
-        body: {'username': username, 'password': password});
-    if(result != null) {
+        path: _login, body: {'username': username, 'password': password});
+    if (result != null) {
       final user = User.fromJson(result['user_data']);
       user.accessToken = result['access_token'];
       user.tokenType = result['token_type'];
@@ -23,7 +23,20 @@ class APIClient {
     return null;
   }
 
-  void doUpdateToken() {}
+  Future<bool> doUpdateToken(
+      int userId, String accessToken, String fcmToken) async {
+    final result = await postRequestWithToken(
+        path: _updateFCMToken,
+        body: {"user_id": userId, "firebase_token": fcmToken},
+        accessToken: accessToken);
+    if (result != null) {
+      final bool isSuccess = result["status"] == "true";
+      final String message = result["message"];
+      print(message);
+      return isSuccess;
+    }
+    return false;
+  }
 
   void doGetListPosts() {}
 
@@ -47,10 +60,47 @@ class APIClient {
       {@required String path, Map<String, String> parameters}) async {
     final uri = Uri.http(_baseUrl, '$_contextRoot/$path', parameters);
     final results = await http.get(uri, headers: _headers);
-    final jsonObject = json.decode(results.body);
-    return jsonObject;
+    if (results.statusCode == 200) {
+      final jsonObject = json.decode(results.body);
+      return jsonObject;
+    }
+    return null;
+  }
+
+  Future<Map> postRequestWithToken(
+      {@required String path,
+      Map<String, dynamic> body,
+      String accessToken}) async {
+    final uri = Uri.http(_baseUrl, '$_contextRoot/$path');
+    final results = await http.post(uri,
+        headers: _headersWithToken(accessToken), body: json.encode(body));
+    if (results.statusCode == 200) {
+      final jsonObject = json.decode(results.body);
+      return jsonObject;
+    }
+    return null;
+  }
+
+  Future<Map> getRequestWithToken(
+      {@required String path,
+      Map<String, String> parameters,
+      String accessToken}) async {
+    final uri = Uri.http(_baseUrl, '$_contextRoot/$path', parameters);
+    final results =
+        await http.get(uri, headers: _headersWithToken(accessToken));
+    if (results.statusCode == 200) {
+      final jsonObject = json.decode(results.body);
+      return jsonObject;
+    }
+    return null;
   }
 
   Map<String, String> get _headers =>
       {'Accept': 'application/json', 'Content-type': 'application/json'};
+
+  Map<String, String> _headersWithToken(String token) => {
+        'Accept': 'application/json',
+        'Content-type': 'application/json',
+        'Authorization': token
+      };
 }

@@ -5,8 +5,8 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/list_posts_bloc.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
-import 'package:uet_student_notification/DataLayer/post.dart';
 import 'package:uet_student_notification/Common/navigation_extension.dart';
+import 'package:uet_student_notification/DataLayer/post.dart';
 import 'package:uet_student_notification/UI/post_details_screen.dart';
 
 ProgressDialog progressDialog;
@@ -25,7 +25,8 @@ class ListPostsScreen extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Future.delayed(Duration(milliseconds: 300), () async {
         await progressDialog.show();
-        bloc.loadListPosts();
+        await bloc.checkAndUpdateFcmToken();
+        bloc.loadListPosts(false);
       });
     });
 
@@ -84,18 +85,28 @@ class ListPostsScreen extends StatelessWidget {
   Widget _buildList(List<Post> posts, ListPostsBloc bloc) {
     return SmartRefresher(
       enablePullDown: true,
-      enablePullUp: false,
+      enablePullUp: posts.length < 20,
       controller: _refreshController,
+      onLoading: () async {
+        await Future.delayed(Duration(milliseconds: 1000));
+        _refreshController.loadComplete();
+        bloc.loadListPosts(true);
+      },
       onRefresh: () async {
         await Future.delayed(Duration(milliseconds: 1000));
         _refreshController.refreshCompleted();
-        bloc.loadListPosts();
+        bloc.loadListPosts(false);
       },
       child: ListView.separated(
           itemBuilder: (context, index) {
             final post = posts[index];
             return ListTile(
-              title: Text(post.title),
+              title: Text(
+                post.title,
+                style: TextStyle(
+                  color: post.isRead ? Colors.black : Colors.red
+                ),
+              ),
               subtitle: Text(post.date),
               onTap: () {
                 context.navigateTo(PostDetailsScreen(post: post));
