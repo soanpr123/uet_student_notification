@@ -1,17 +1,18 @@
 import 'dart:async';
 
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uet_student_notification/BLoC/bloc.dart';
+import 'package:uet_student_notification/Common/common.dart' as Common;
 import 'package:uet_student_notification/DataLayer/api_client.dart';
 import 'package:uet_student_notification/DataLayer/post.dart';
-import 'package:uet_student_notification/Common/common.dart' as Common;
 
 class ListPostsBloc extends Bloc{
   final _client = APIClient();
   List<Post> list = new List();
   final _controller = StreamController<List<Post>>();
-  int currentPage = 0;
+  int currentPage = 1;
+  static const PAGE_SIZE = 10;
+  bool enableLoadMore = true;
 
   Stream<List<Post>> get listPosts => _controller.stream;
 
@@ -20,23 +21,17 @@ class ListPostsBloc extends Bloc{
       currentPage++;
     }else{
       list.clear();
-      currentPage = 0;
+      currentPage = 1;
     }
     SharedPreferences preferences = await SharedPreferences.getInstance();
+    final tokenType = preferences.getString(Common.TOKEN_TYPE);
     final aToken = preferences.getString(Common.ACCESS_TOKEN);
     final userId = preferences.getInt(Common.USER_ID);
-    //dummy data
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat('kk:mm:ss EEE d-MM-yyyy').format(now);
-    Post test;
-    for(int i = 0; i < 10; i++){
-      test = new Post(i);
-      test.title = "Title $i";
-      test.content = "Content $i";
-      test.date = formattedDate;
-      list.add(test);
+    final result = await _client.doGetListPosts(userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
+    if(result.isEmpty){
+      enableLoadMore = false;
     }
-    await Future.delayed(Duration(seconds: 2));
+    list.addAll(result);
     _controller.sink.add(list);
   }
 

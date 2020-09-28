@@ -85,7 +85,7 @@ class ListPostsScreen extends StatelessWidget {
   Widget _buildList(List<Post> posts, ListPostsBloc bloc) {
     return SmartRefresher(
       enablePullDown: true,
-      enablePullUp: posts.length < 20,
+      enablePullUp: bloc.enableLoadMore,
       controller: _refreshController,
       onLoading: () async {
         await Future.delayed(Duration(milliseconds: 1000));
@@ -107,7 +107,7 @@ class ListPostsScreen extends StatelessWidget {
                   color: post.isRead ? Colors.black : Colors.red
                 ),
               ),
-              subtitle: Text(post.date),
+              subtitle: Text(post.createdDate),
               onTap: () {
                 context.navigateTo(PostDetailsScreen(post: post));
               },

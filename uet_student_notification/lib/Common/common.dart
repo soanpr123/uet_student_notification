@@ -13,16 +13,16 @@ const String IS_UPDATE_FCM_TOKEN = "is_update_fcm_token";
 const double PADDING = 16.0;
 const double INPUT_RADIUS = 10.0;
 
-final Map<String, Post> _items = <String, Post>{};
-
-Post _itemForMessage(Map<String, dynamic> message) {
-  final dynamic data = message['data'] ?? message;
-  final int postId = data['post_id'];
-  final Post item = _items.putIfAbsent(
-      postId.toString(),
-      () => Post(postId)
-        ..title = data['post_title']
-        ..content = data['post_content']
-        ..date = data['post_date']);
-  return item;
-}
+// final Map<String, Post> _items = <String, Post>{};
+//
+// Post _itemForMessage(Map<String, dynamic> message) {
+//   final dynamic data = message['data'] ?? message;
+//   final int postId = data['post_id'];
+//   final Post item = _items.putIfAbsent(
+//       postId.toString(),
+//       () => Post(postId)
+//         ..title = data['post_title']
+//         ..content = data['post_content']
+//         ..date = data['post_date']);
+//   return item;
+// }

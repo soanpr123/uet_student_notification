@@ -2,7 +2,8 @@ class Post {
   final int id;
   String title;
   String content;
-  String date;
+  String createdDate;
+  String updatedDate;
   bool isRead = false;
 
   Post(this.id);
@@ -11,6 +12,7 @@ class Post {
       : id = json["post_id"],
         title = json["post_title"],
         content = json["post_content"],
-        date = json["post_date"],
+        createdDate = json["created_at"],
+        updatedDate = json["updated_at"],
         isRead = json["is_read"];
 }
