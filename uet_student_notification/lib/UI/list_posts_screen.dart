@@ -72,10 +72,6 @@ class ListPostsScreen extends StatelessWidget {
         }
 
         progressDialog.hide();
-        if (results.isEmpty) {
-          return Container(
-              child: Text("No posts"), alignment: Alignment.center);
-        }
 
         return _buildList(results, bloc);
       },
@@ -88,33 +84,33 @@ class ListPostsScreen extends StatelessWidget {
       enablePullUp: bloc.enableLoadMore,
       controller: _refreshController,
       onLoading: () async {
-        await Future.delayed(Duration(milliseconds: 1000));
         _refreshController.loadComplete();
         bloc.loadListPosts(true);
       },
       onRefresh: () async {
-        await Future.delayed(Duration(milliseconds: 1000));
         _refreshController.refreshCompleted();
         bloc.loadListPosts(false);
       },
-      child: ListView.separated(
-          itemBuilder: (context, index) {
-            final post = posts[index];
-            return ListTile(
-              title: Text(
-                post.title,
-                style: TextStyle(
-                  color: post.isRead ? Colors.black : Colors.red
-                ),
-              ),
-              subtitle: Text(post.createdDate),
-              onTap: () {
-                context.navigateTo(PostDetailsScreen(post: post));
+      child: posts.isEmpty
+          ? Container(child: Text("No posts"), alignment: Alignment.center)
+          : ListView.separated(
+              itemBuilder: (context, index) {
+                final post = posts[index];
+                return ListTile(
+                  title: Text(
+                    post.title,
+                    style: TextStyle(
+                        color: post.isRead ? Colors.black : Colors.red),
+                  ),
+                  subtitle: Text(post.createdDate),
+                  onTap: () {
+                    context.navigateTo(PostDetailsScreen(post: post));
+                  },
+                );
               },
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) => Divider(),
-          itemCount: posts.length),
+              separatorBuilder: (BuildContext context, int index) => Divider(),
+              itemCount: posts.length,
+            ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'package:uet_student_notification/DataLayer/profile.dart';
+
 class User {
   final int id;
   final int roleId;
@@ -7,7 +9,7 @@ class User {
   final String emailVerifiedDate;
   final String createdDate;
   final String updatedDate;
-  final String profile;
+  final Profile profile;
   String accessToken;
   String tokenType;
   String expireDate;
@@ -17,7 +19,7 @@ class User {
         roleId = json["role_id"],
         username = json["username"],
         email = json["email"],
-        profile = json["profile"],
+        profile = Profile.fromJson(json['profile']),
         firebaseToken = json["firebase_token"],
         emailVerifiedDate = json["email_verified_at"],
         createdDate = json["created_at"],

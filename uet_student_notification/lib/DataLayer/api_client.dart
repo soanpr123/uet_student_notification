@@ -17,11 +17,15 @@ class APIClient {
     final result = await postRequest(
         path: _login, body: {'username': username, 'password': password});
     if (result != null) {
-      final user = User.fromJson(result['user_data']);
-      user.accessToken = result['access_token'];
-      user.tokenType = result['token_type'];
-      user.expireDate = result['expires_at'];
-      return user;
+      try {
+        final user = User.fromJson(result['user_data']);
+        user.accessToken = result['access_token'];
+        user.tokenType = result['token_type'];
+        user.expireDate = result['expires_at'];
+        return user;
+      } on Exception catch(e){
+        print(e);
+      }
     }
     return null;
   }
