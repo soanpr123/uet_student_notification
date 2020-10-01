@@ -141,8 +141,8 @@ class LogInScreen extends StatelessWidget {
             bloc
                 .doLogin(
                     usernameTextController.text, passwordTextController.text)
-                .then((value) {
-              progressDialog.hide();
+                .then((value) async {
+              await progressDialog.hide();
               if (value) {
                 usernameTextController.text = "";
                 passwordTextController.text = "";

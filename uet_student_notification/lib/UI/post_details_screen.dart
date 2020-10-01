@@ -5,7 +5,6 @@ import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/post_details_bloc.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
 import 'package:uet_student_notification/DataLayer/post.dart';
-import 'package:uet_student_notification/Common/navigation_extension.dart';
 
 ProgressDialog progressDialog;
 
@@ -19,20 +18,27 @@ class PostDetailsScreen extends StatelessWidget {
     final bloc = PostDetailsBloc();
     progressDialog = ProgressDialog(context,
         isDismissible: false, type: ProgressDialogType.Normal);
-    progressDialog.style(message: "Loading posts...");
+    progressDialog.style(message: "Loading details...");
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async{
       await progressDialog.show();
-      bloc.loadPostDetails(post.id);
+      // bloc.loadPostDetails(post.id);
+      bloc.loadPostDetails(7);
     });
 
     return BlocProvider<PostDetailsBloc>(
       bloc: bloc,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            post.title,
-            style: TextStyle(color: Colors.white),
+          title: StreamBuilder<String>(
+            stream: bloc.title,
+            builder: (context, snapshot){
+              final title = snapshot.data;
+              return Text(
+                title == null ? post.title : title,
+                style: TextStyle(color: Colors.white),
+              );
+            },
           ),
         ),
         body: _buildBody(bloc),
@@ -65,16 +71,17 @@ class PostDetailsScreen extends StatelessWidget {
     return StreamBuilder<Post>(
         stream: bloc.post,
         builder: (context, snapshot) {
+          progressDialog.hide().then((value) {
+            print("Hide: $value");
+          });
+
           final result = snapshot.data;
           if (result == null) {
             return Container(
                 child: Text("Loading..."), alignment: Alignment.center);
           }
-
-          progressDialog.hide();
-
           return Container(
-              child: Text(result.content), alignment: Alignment.center);
+              child: Text(result.content), alignment: Alignment.topCenter);
         });
   }
 }

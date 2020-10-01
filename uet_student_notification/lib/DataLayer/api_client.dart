@@ -12,6 +12,7 @@ class APIClient {
   final _login = "auth/login";
   final _updateFCMToken = "v1/update-firebase-token";
   final _userPosts = "v1/user-posts";
+  final _postDetails = "v1/user-post";
 
   Future<User> doLogin(String username, String password) async {
     final result = await postRequest(
@@ -23,15 +24,15 @@ class APIClient {
         user.tokenType = result['token_type'];
         user.expireDate = result['expires_at'];
         return user;
-      } on Exception catch(e){
+      } on Exception catch (e) {
         print(e);
       }
     }
     return null;
   }
 
-  Future<bool> doUpdateToken(int userId, String accessToken,
-      String fcmToken) async {
+  Future<bool> doUpdateToken(
+      int userId, String accessToken, String fcmToken) async {
     final result = await postRequestWithToken(
         path: _updateFCMToken,
         body: {"user_id": userId, "firebase_token": fcmToken},
@@ -45,8 +46,8 @@ class APIClient {
     return false;
   }
 
-  Future<List<Post>> doGetListPosts(int userId, int page, int pageSize,
-      String accessToken) async {
+  Future<List<Post>> doGetListPosts(
+      int userId, int page, int pageSize, String accessToken) async {
     final result = await getRequestWithToken(
         path: _userPosts,
         parameters: {
@@ -60,28 +61,38 @@ class APIClient {
       final total = pagination['total'];
       final data = result['data'];
       DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-      return data
-          .map<Post>((json) {
+      return data.map<Post>((json) {
         final post = Post.fromJson(json);
         DateTime dateTime = format.parse(post.createdDate, true);
-        String formattedDate = DateFormat('kk:mm:ss EEE d-MM-yyyy').format(dateTime);
+        String formattedDate =
+            DateFormat('kk:mm:ss EEE d-MM-yyyy').format(dateTime);
         post.createdDate = formattedDate;
-      })
-          .toList(growable: false);
+      }).toList(growable: false);
     }
     return List.empty();
   }
 
-  void doGetPostDetails() {}
+  Future<Post> doGetPostDetails(int postId, String accessToken) async {
+    final result =
+        await getRequestWithToken(path: "$_postDetails/$postId", accessToken: accessToken);
+    if(result != null){
+      return Post.fromJson(result);
+    }
+    return null;
+  }
 
   void doUpdatePostStatus() {}
 
   Future<Map> postRequest(
       {@required String path, Map<String, dynamic> body}) async {
     final uri = Uri.http(_baseUrl, '$_contextRoot/$path');
-    final results =
-    await http.post(uri, headers: _headers, body: json.encode(body));
-    if (results.statusCode == 200) {
+    final results = await http
+        .post(uri, headers: _headers, body: json.encode(body))
+        .catchError((Object error) {
+      print(error);
+      return null;
+    });
+    if (results != null && results.statusCode == 200) {
       final jsonObject = json.decode(results.body);
       return jsonObject;
     }
@@ -91,34 +102,49 @@ class APIClient {
   Future<Map> getRequest(
       {@required String path, Map<String, String> parameters}) async {
     final uri = Uri.http(_baseUrl, '$_contextRoot/$path', parameters);
-    final results = await http.get(uri, headers: _headers);
-    if (results.statusCode == 200) {
-      final jsonObject = json.decode(results.body);
-      return jsonObject;
-    }
-    return null;
-  }
-
-  Future<Map> postRequestWithToken({@required String path,
-    Map<String, dynamic> body,
-    String accessToken}) async {
-    final uri = Uri.http(_baseUrl, '$_contextRoot/$path');
-    final results = await http.post(uri,
-        headers: _headersWithToken(accessToken), body: json.encode(body));
-    if (results.statusCode == 200) {
-      final jsonObject = json.decode(results.body);
-      return jsonObject;
-    }
-    return null;
-  }
-
-  Future<Map> getRequestWithToken({@required String path,
-    Map<String, String> parameters,
-    String accessToken}) async {
-    final uri = Uri.http(_baseUrl, '$_contextRoot/$path', parameters);
     final results =
-    await http.get(uri, headers: _headersWithToken(accessToken));
-    if (results.statusCode == 200) {
+        await http.get(uri, headers: _headers).catchError((Object error) {
+      print(error);
+      return null;
+    });
+    if (results != null && results.statusCode == 200) {
+      final jsonObject = json.decode(results.body);
+      return jsonObject;
+    }
+    return null;
+  }
+
+  Future<Map> postRequestWithToken(
+      {@required String path,
+      Map<String, dynamic> body,
+      String accessToken}) async {
+    final uri = Uri.http(_baseUrl, '$_contextRoot/$path');
+    final results = await http
+        .post(uri,
+            headers: _headersWithToken(accessToken), body: json.encode(body))
+        .catchError((Object error) {
+      print(error);
+      return null;
+    });
+    if (results != null && results.statusCode == 200) {
+      final jsonObject = json.decode(results.body);
+      return jsonObject;
+    }
+    return null;
+  }
+
+  Future<Map> getRequestWithToken(
+      {@required String path,
+      Map<String, String> parameters,
+      String accessToken}) async {
+    final uri = Uri.http(_baseUrl, '$_contextRoot/$path', parameters);
+    final results = await http
+        .get(uri, headers: _headersWithToken(accessToken))
+        .catchError((Object error) {
+      print(error);
+      return null;
+    });
+    if (results != null && results.statusCode == 200) {
       final jsonObject = json.decode(results.body);
       return jsonObject;
     }
@@ -128,8 +154,7 @@ class APIClient {
   Map<String, String> get _headers =>
       {'Accept': 'application/json', 'Content-type': 'application/json'};
 
-  Map<String, String> _headersWithToken(String token) =>
-      {
+  Map<String, String> _headersWithToken(String token) => {
         'Accept': 'application/json',
         'Content-type': 'application/json',
         'Authorization': token

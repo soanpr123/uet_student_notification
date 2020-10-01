@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uet_student_notification/BLoC/bloc.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
@@ -16,7 +17,7 @@ class ListPostsBloc extends Bloc{
 
   Stream<List<Post>> get listPosts => _controller.stream;
 
-  void loadListPosts(bool isLoadMore) async{
+  Future<void> loadListPosts(bool isLoadMore) async{
     if(isLoadMore){
       currentPage++;
     }else{
@@ -28,6 +29,17 @@ class ListPostsBloc extends Bloc{
     final aToken = preferences.getString(Common.ACCESS_TOKEN);
     final userId = preferences.getInt(Common.USER_ID);
     final result = await _client.doGetListPosts(userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
+    //dummy
+    DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
+    Post post = Post(0);
+    post.title = "Title";
+    post.content = "Content";
+    post.createdDate = "2020-09-29T07:06:20.000000Z";
+    DateTime dateTime = format.parse(post.createdDate, true);
+    String formattedDate = DateFormat('kk:mm:ss EEE d-MM-yyyy').format(dateTime);
+    post.createdDate = formattedDate;
+    list.add(post);
+    //
     if(result.isEmpty){
       enableLoadMore = false;
     }
@@ -46,6 +58,16 @@ class ListPostsBloc extends Bloc{
      final result = await _client.doUpdateToken(userId, "$tokenType $aToken",fcmToken);
      await preferences.setBool(Common.IS_UPDATE_FCM_TOKEN, result);
     }
+  }
+
+  Future<void> updatePostStatus(int postId) async {
+    await Future.delayed(Duration(milliseconds: 3000));
+    for(Post post in list){
+      if(post.id == postId){
+        post.isRead = true;
+      }
+    }
+    _controller.sink.add(list);
   }
 
   @override

@@ -20,10 +20,10 @@ class ListPostsScreen extends StatelessWidget {
     final bloc = ListPostsBloc();
     progressDialog = ProgressDialog(context,
         isDismissible: false, type: ProgressDialogType.Normal);
-    progressDialog.style(message: "Loading posts...");
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Future.delayed(Duration(milliseconds: 300), () async {
+        progressDialog.style(message: "Loading posts...");
         await progressDialog.show();
         await bloc.checkAndUpdateFcmToken();
         bloc.loadListPosts(false);
@@ -64,14 +64,15 @@ class ListPostsScreen extends StatelessWidget {
     return StreamBuilder<List<Post>>(
       stream: bloc.listPosts,
       builder: (context, snapshot) {
+        progressDialog.hide().then((value) {
+          print("Hide: $value");
+        });
         final results = snapshot.data;
 
         if (results == null) {
           return Container(
               child: Text("Loading..."), alignment: Alignment.center);
         }
-
-        progressDialog.hide();
 
         return _buildList(results, bloc);
       },
@@ -103,7 +104,16 @@ class ListPostsScreen extends StatelessWidget {
                         color: post.isRead ? Colors.black : Colors.red),
                   ),
                   subtitle: Text(post.createdDate),
-                  onTap: () {
+                  onTap: () async {
+                    if(!post.isRead) {
+                      progressDialog = ProgressDialog(context,
+                          isDismissible: false,
+                          type: ProgressDialogType.Normal);
+                      progressDialog.style(message: "Updating...");
+                      await progressDialog.show();
+                      await bloc.updatePostStatus(post.id);
+                      await progressDialog.hide();
+                    }
                     context.navigateTo(PostDetailsScreen(post: post));
                   },
                 );
