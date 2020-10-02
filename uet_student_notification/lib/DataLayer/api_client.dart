@@ -13,6 +13,7 @@ class APIClient {
   final _updateFCMToken = "v1/update-firebase-token";
   final _userPosts = "v1/user-posts";
   final _postDetails = "v1/user-post";
+  final _updatePostStatus = "v1/update-status";
 
   Future<User> doLogin(String username, String password) async {
     final result = await postRequest(
@@ -73,15 +74,34 @@ class APIClient {
   }
 
   Future<Post> doGetPostDetails(int postId, String accessToken) async {
-    final result =
-        await getRequestWithToken(path: "$_postDetails/$postId", accessToken: accessToken);
-    if(result != null){
+    final result = await getRequestWithToken(
+        path: "$_postDetails/$postId", accessToken: accessToken);
+    if (result != null) {
       return Post.fromJson(result);
     }
     return null;
   }
 
-  void doUpdatePostStatus() {}
+  Future<bool> doUpdatePostStatus(
+      int userId, int postId, bool isRead, String accessToken) async {
+    final result = await postRequestWithToken(
+        path: _updatePostStatus,
+        body: {
+          "user_id": userId,
+          "posts": [
+            {"post_id": postId, "is_read": true}
+          ]
+        },
+        accessToken: accessToken);
+    if (result != null) {
+      final bool isSuccess = result["status"] == "true";
+      final String message = result["message"];
+      final postIds = result["data"];
+      print(message);
+      return isSuccess && postIds.isEmpty;
+    }
+    return false;
+  }
 
   Future<Map> postRequest(
       {@required String path, Map<String, dynamic> body}) async {
