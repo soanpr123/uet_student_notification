@@ -3,6 +3,7 @@ import 'dart:convert' show json;
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:uet_student_notification/DataLayer/page_post.dart';
 import 'package:uet_student_notification/DataLayer/post.dart';
 import 'package:uet_student_notification/DataLayer/user.dart';
 
@@ -47,7 +48,7 @@ class APIClient {
     return false;
   }
 
-  Future<List<Post>> doGetListPosts(
+  Future<PagePost> doGetListPosts(
       int userId, int page, int pageSize, String accessToken) async {
     final result = await getRequestWithToken(
         path: _userPosts,
@@ -70,7 +71,7 @@ class APIClient {
         post.createdDate = formattedDate;
       }).toList(growable: false);
     }
-    return List.empty();
+    return null;
   }
 
   Future<Post> doGetPostDetails(int postId, String accessToken) async {
@@ -112,9 +113,16 @@ class APIClient {
       print(error);
       return null;
     });
-    if (results != null && results.statusCode == 200) {
-      final jsonObject = json.decode(results.body);
-      return jsonObject;
+    if (results != null) {
+      switch (results.statusCode) {
+        case 200:
+          final jsonObject = json.decode(results.body);
+          return jsonObject;
+          break;
+        case 401:
+
+          break;
+      }
     }
     return null;
   }

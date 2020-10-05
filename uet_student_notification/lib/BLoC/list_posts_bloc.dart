@@ -29,6 +29,7 @@ class ListPostsBloc extends Bloc{
     final aToken = preferences.getString(Common.ACCESS_TOKEN);
     final userId = preferences.getInt(Common.USER_ID);
     final result = await _client.doGetListPosts(userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
+    final listPosts = result.data;
     //dummy
     DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
     Post post = Post(0);
@@ -40,10 +41,10 @@ class ListPostsBloc extends Bloc{
     post.createdDate = formattedDate;
     list.add(post);
     //
-    if(result.isEmpty){
+    if(result.pagination.currentPage == result.pagination.lastPage){
       enableLoadMore = false;
     }
-    list.addAll(result);
+    list.addAll(listPosts);
     _controller.sink.add(list);
   }
 
