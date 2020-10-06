@@ -26,7 +26,7 @@ class ListPostsScreen extends StatelessWidget {
         progressDialog.style(message: "Loading posts...");
         await progressDialog.show();
         await bloc.checkAndUpdateFcmToken();
-        bloc.loadListPosts(false);
+        bloc.loadListPosts(context, false);
       });
     });
 
@@ -74,23 +74,23 @@ class ListPostsScreen extends StatelessWidget {
               child: Text("Loading..."), alignment: Alignment.center);
         }
 
-        return _buildList(results, bloc);
+        return _buildList(context, results, bloc);
       },
     );
   }
 
-  Widget _buildList(List<Post> posts, ListPostsBloc bloc) {
+  Widget _buildList(BuildContext context, List<Post> posts, ListPostsBloc bloc) {
     return SmartRefresher(
       enablePullDown: true,
       enablePullUp: bloc.enableLoadMore,
       controller: _refreshController,
       onLoading: () async {
         _refreshController.loadComplete();
-        bloc.loadListPosts(true);
+        bloc.loadListPosts(context, true);
       },
       onRefresh: () async {
         _refreshController.refreshCompleted();
-        bloc.loadListPosts(false);
+        bloc.loadListPosts(context, false);
       },
       child: posts.isEmpty
           ? Container(child: Text("No posts"), alignment: Alignment.center)
@@ -111,7 +111,7 @@ class ListPostsScreen extends StatelessWidget {
                           type: ProgressDialogType.Normal);
                       progressDialog.style(message: "Updating...");
                       await progressDialog.show();
-                      await bloc.updatePostStatus(post.id);
+                      await bloc.updatePostStatus(context, post.id);
                       await progressDialog.hide();
                     }
                     context.navigateTo(PostDetailsScreen(post: post));

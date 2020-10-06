@@ -3,7 +3,7 @@ import 'package:uet_student_notification/DataLayer/post.dart';
 
 class PagePost {
   Pagination pagination;
-  List<Post> data;
+  List<Post> data = List();
 
   PagePost({this.pagination, this.data});
 
@@ -11,7 +11,7 @@ class PagePost {
     pagination = json['pagination'] != null
         ? new Pagination.fromJson(json['pagination'])
         : null;
-    data = new List<Post>();
+    data.clear();
     if (json['data'] != null) {
       DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
       json['data'].forEach((v) {

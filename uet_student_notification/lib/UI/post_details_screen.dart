@@ -23,7 +23,7 @@ class PostDetailsScreen extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async{
       await progressDialog.show();
       // bloc.loadPostDetails(post.id);
-      bloc.loadPostDetails(7);
+      bloc.loadPostDetails(context, 7);
     });
 
     return BlocProvider<PostDetailsBloc>(

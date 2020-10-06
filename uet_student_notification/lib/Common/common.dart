@@ -1,5 +1,8 @@
 library common;
 
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import '../DataLayer/post.dart';
 
 const String IS_LOGGED_IN = "is_logged_in";
@@ -12,6 +15,18 @@ const String IS_UPDATE_FCM_TOKEN = "is_update_fcm_token";
 
 const double PADDING = 16.0;
 const double INPUT_RADIUS = 10.0;
+
+void showToast(String message){
+  Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.black45,
+      textColor: Colors.white,
+      fontSize: 16.0
+  );
+}
 
 // final Map<String, Post> _items = <String, Post>{};
 //

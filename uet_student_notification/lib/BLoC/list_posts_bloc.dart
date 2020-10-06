@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uet_student_notification/BLoC/bloc.dart';
@@ -17,7 +18,7 @@ class ListPostsBloc extends Bloc{
 
   Stream<List<Post>> get listPosts => _controller.stream;
 
-  Future<void> loadListPosts(bool isLoadMore) async{
+  Future<void> loadListPosts(BuildContext context, bool isLoadMore) async{
     if(isLoadMore){
       currentPage++;
     }else{
@@ -28,7 +29,7 @@ class ListPostsBloc extends Bloc{
     final tokenType = preferences.getString(Common.TOKEN_TYPE);
     final aToken = preferences.getString(Common.ACCESS_TOKEN);
     final userId = preferences.getInt(Common.USER_ID);
-    final result = await _client.doGetListPosts(userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
+    final result = await _client.doGetListPosts(context, userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
     final listPosts = result.data;
     //dummy
     DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
@@ -61,12 +62,12 @@ class ListPostsBloc extends Bloc{
     }
   }
 
-  Future<void> updatePostStatus(int postId) async {
+  Future<void> updatePostStatus(BuildContext context, int postId) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     final tokenType = preferences.getString(Common.TOKEN_TYPE);
     final aToken = preferences.getString(Common.ACCESS_TOKEN);
     final userId = preferences.getInt(Common.USER_ID);
-    final result = await _client.doUpdatePostStatus(userId, postId, true, "$tokenType $aToken");
+    final result = await _client.doUpdatePostStatus(context, userId, postId, true, "$tokenType $aToken");
     for(Post post in list){
       if(post.id == postId){
         post.isRead = result;
