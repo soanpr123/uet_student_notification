@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:uet_student_notification/DataLayer/post.dart';
 
 class PagePost {
@@ -10,10 +11,16 @@ class PagePost {
     pagination = json['pagination'] != null
         ? new Pagination.fromJson(json['pagination'])
         : null;
+    data = new List<Post>();
     if (json['data'] != null) {
-      data = new List<Null>();
+      DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
       json['data'].forEach((v) {
-        data.add(new Post.fromJson(v));
+        final post = Post.fromJson(json);
+        DateTime dateTime = format.parse(post.createdDate, true);
+        String formattedDate =
+        DateFormat('kk:mm:ss EEE d-MM-yyyy').format(dateTime);
+        post.createdDate = formattedDate;
+        data.add(post);
       });
     }
   }

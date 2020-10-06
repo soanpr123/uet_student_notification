@@ -59,17 +59,7 @@ class APIClient {
         },
         accessToken: accessToken);
     if (result != null) {
-      final pagination = result['pagination'];
-      final total = pagination['total'];
-      final data = result['data'];
-      DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-      return data.map<Post>((json) {
-        final post = Post.fromJson(json);
-        DateTime dateTime = format.parse(post.createdDate, true);
-        String formattedDate =
-            DateFormat('kk:mm:ss EEE d-MM-yyyy').format(dateTime);
-        post.createdDate = formattedDate;
-      }).toList(growable: false);
+      return PagePost.fromJson(result);
     }
     return null;
   }
