@@ -13,7 +13,7 @@ import 'package:uet_student_notification/Common/common.dart' as Common;
 class APIClient {
   final _baseUrl = "112.137.129.31";
   final _contextRoot = 'api';
-  final _login = "auth/login";
+  final _login = "auth/ldap/login";
   final _updateFCMToken = "v1/update-firebase-token";
   final _userPosts = "v1/user-posts";
   final _postDetails = "v1/user-post";
@@ -48,8 +48,8 @@ class APIClient {
         body: {"user_id": userId, "firebase_token": fcmToken},
         accessToken: accessToken);
     if (result != null) {
-      final bool isSuccess = result["status"] == "true";
-      final String message = result["message"];
+      final isSuccess = result["status"] == "true";
+      final message = result["message"];
       print(message);
       return isSuccess;
     }

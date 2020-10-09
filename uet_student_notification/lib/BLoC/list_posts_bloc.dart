@@ -30,23 +30,26 @@ class ListPostsBloc extends Bloc{
     final aToken = preferences.getString(Common.ACCESS_TOKEN);
     final userId = preferences.getInt(Common.USER_ID);
     final result = await _client.doGetListPosts(context, userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
-    final listPosts = result.data;
-    //dummy
-    DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
-    Post post = Post(0);
-    post.title = "Title";
-    post.content = "Content";
-    post.createdDate = "2020-09-29T07:06:20.000000Z";
-    DateTime dateTime = format.parse(post.createdDate, true);
-    String formattedDate = DateFormat('kk:mm:ss EEE d-MM-yyyy').format(dateTime);
-    post.createdDate = formattedDate;
-    list.add(post);
-    //
-    if(result.pagination.currentPage == result.pagination.lastPage){
-      enableLoadMore = false;
+    if(result != null) {
+      final listPosts = result.data;
+      //dummy
+      DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
+      Post post = Post(0);
+      post.title = "Title";
+      post.content = "Content";
+      post.createdDate = "2020-09-29T07:06:20.000000Z";
+      DateTime dateTime = format.parse(post.createdDate, true);
+      String formattedDate = DateFormat('kk:mm:ss EEE d-MM-yyyy').format(
+          dateTime);
+      post.createdDate = formattedDate;
+      list.add(post);
+      //
+      if (result.pagination.currentPage == result.pagination.lastPage) {
+        enableLoadMore = false;
+      }
+      list.addAll(listPosts);
+      _controller.sink.add(list);
     }
-    list.addAll(listPosts);
-    _controller.sink.add(list);
   }
 
   Future<void> checkAndUpdateFcmToken() async {
