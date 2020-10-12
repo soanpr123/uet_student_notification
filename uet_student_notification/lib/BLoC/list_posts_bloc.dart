@@ -33,16 +33,16 @@ class ListPostsBloc extends Bloc{
     if(result != null) {
       final listPosts = result.data;
       //dummy
-      DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
-      Post post = Post(0);
-      post.title = "Title";
-      post.content = "Content";
-      post.createdDate = "2020-09-29T07:06:20.000000Z";
-      DateTime dateTime = format.parse(post.createdDate, true);
-      String formattedDate = DateFormat('kk:mm:ss EEE d-MM-yyyy').format(
-          dateTime);
-      post.createdDate = formattedDate;
-      list.add(post);
+      // DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
+      // Post post = Post(0);
+      // post.title = "Title";
+      // post.content = "Content";
+      // post.createdDate = "2020-09-29T07:06:20.000000Z";
+      // DateTime dateTime = format.parse(post.createdDate, true);
+      // String formattedDate = DateFormat('kk:mm:ss EEE d-MM-yyyy').format(
+      //     dateTime);
+      // post.createdDate = formattedDate;
+      // list.add(post);
       //
       if (result.pagination.currentPage == result.pagination.lastPage) {
         enableLoadMore = false;

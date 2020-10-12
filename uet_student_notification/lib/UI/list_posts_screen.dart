@@ -99,11 +99,11 @@ class ListPostsScreen extends StatelessWidget {
                 final post = posts[index];
                 return ListTile(
                   title: Text(
-                    post.title,
+                    post.title ?? "Undefined",
                     style: TextStyle(
                         color: post.isRead ? Colors.black : Colors.red),
                   ),
-                  subtitle: Text(post.createdDate),
+                  subtitle: Text(post.createdDate ?? "Undefined"),
                   onTap: () async {
                     if(!post.isRead) {
                       progressDialog = ProgressDialog(context,

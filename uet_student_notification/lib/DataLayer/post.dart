@@ -14,5 +14,5 @@ class Post {
         content = json["post_content"],
         createdDate = json["created_at"],
         updatedDate = json["updated_at"],
-        isRead = json["is_read"];
+        isRead = json["is_read"] == 1;
 }

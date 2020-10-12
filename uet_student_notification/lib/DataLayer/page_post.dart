@@ -16,10 +16,12 @@ class PagePost {
       DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
       json['data'].forEach((v) {
         final post = Post.fromJson(json);
-        DateTime dateTime = format.parse(post.createdDate, true);
-        String formattedDate =
-        DateFormat('kk:mm:ss EEE d-MM-yyyy').format(dateTime);
-        post.createdDate = formattedDate;
+        if(post.createdDate != null) {
+          DateTime dateTime = format.parse(post.createdDate, true);
+          String formattedDate = DateFormat('kk:mm:ss EEE d-MM-yyyy').format(
+              dateTime);
+          post.createdDate = formattedDate;
+        }
         data.add(post);
       });
     }
@@ -31,8 +33,8 @@ class Pagination {
   String perPage;
   int currentPage;
   int lastPage;
-  Null from;
-  Null to;
+  int from;
+  int to;
 
   Pagination(
       {this.total,

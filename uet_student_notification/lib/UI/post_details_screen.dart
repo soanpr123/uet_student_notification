@@ -22,8 +22,7 @@ class PostDetailsScreen extends StatelessWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async{
       await progressDialog.show();
-      // bloc.loadPostDetails(post.id);
-      bloc.loadPostDetails(context, 7);
+      bloc.loadPostDetails(context, post.id);
     });
 
     return BlocProvider<PostDetailsBloc>(
@@ -35,7 +34,7 @@ class PostDetailsScreen extends StatelessWidget {
             builder: (context, snapshot){
               final title = snapshot.data;
               return Text(
-                title == null ? post.title : title,
+                title == null ? (post.title ?? "Undefined") : title,
                 style: TextStyle(color: Colors.white),
               );
             },

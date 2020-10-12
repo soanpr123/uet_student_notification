@@ -95,7 +95,7 @@ class APIClient {
         accessToken: accessToken);
     if (result != null) {
       final bool isSuccess = result["status"] == "true";
-      final String message = result["message"];
+      final message = result["message"];
       final postIds = result["data"];
       print(message);
       return isSuccess && postIds.isEmpty;
