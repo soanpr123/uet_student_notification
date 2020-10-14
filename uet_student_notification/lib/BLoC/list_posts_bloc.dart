@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uet_student_notification/BLoC/bloc.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
+import 'package:uet_student_notification/Common/navigation_extension.dart';
 import 'package:uet_student_notification/DataLayer/api_client.dart';
 import 'package:uet_student_notification/DataLayer/post.dart';
+import 'package:uet_student_notification/UI/log_in_screen.dart';
 
 class ListPostsBloc extends Bloc{
   final _client = APIClient();
@@ -15,8 +16,22 @@ class ListPostsBloc extends Bloc{
   int currentPage = 1;
   static const PAGE_SIZE = 10;
   bool enableLoadMore = true;
+  final _usernameController = StreamController<String>();
 
   Stream<List<Post>> get listPosts => _controller.stream;
+  Stream<String> get username => _usernameController.stream;
+
+  void loadUsername() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    final username = preferences.getString(Common.USER_NAME);
+    _usernameController.sink.add(username);
+  }
+
+  void logOut(BuildContext context) async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.clear();
+    context.replaceAllWith(LogInScreen());
+  }
 
   Future<void> loadListPosts(BuildContext context, bool isLoadMore) async{
     if(isLoadMore){
@@ -32,24 +47,17 @@ class ListPostsBloc extends Bloc{
     final result = await _client.doGetListPosts(context, userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
     if(result != null) {
       final listPosts = result.data;
-      //dummy
-      // DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
-      // Post post = Post(0);
-      // post.title = "Title";
-      // post.content = "Content";
-      // post.createdDate = "2020-09-29T07:06:20.000000Z";
-      // DateTime dateTime = format.parse(post.createdDate, true);
-      // String formattedDate = DateFormat('kk:mm:ss EEE d-MM-yyyy').format(
-      //     dateTime);
-      // post.createdDate = formattedDate;
-      // list.add(post);
-      //
       if (result.pagination.currentPage == result.pagination.lastPage) {
         enableLoadMore = false;
       }
       list.addAll(listPosts);
       _controller.sink.add(list);
     }
+  }
+
+  void saveFcmToken(String token) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.setString(Common.FCM_TOKEN, token);
   }
 
   Future<void> checkAndUpdateFcmToken() async {
@@ -81,6 +89,7 @@ class ListPostsBloc extends Bloc{
 
   @override
   void dispose() {
+    _usernameController.close();
     _controller.close();
   }
 }

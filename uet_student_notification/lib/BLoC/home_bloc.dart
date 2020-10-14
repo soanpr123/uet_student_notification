@@ -14,11 +14,6 @@ class HomeBLoc extends Bloc{
       _controller.sink.add(isLoggedIn);
   }
 
-  void saveFcmToken(String token) async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.setString(Common.FCM_TOKEN, token);
-  }
-
   @override
   void dispose() {
     _controller.close();

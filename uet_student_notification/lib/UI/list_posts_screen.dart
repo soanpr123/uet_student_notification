@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -12,8 +13,21 @@ import 'package:uet_student_notification/UI/post_details_screen.dart';
 ProgressDialog progressDialog;
 
 class ListPostsScreen extends StatelessWidget {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
+
+  final GlobalKey _keyTopBar = GlobalKey();
+
+  double _calculateListHeight(double containerHeight){
+    if(_keyTopBar.currentContext != null) {
+      final RenderBox renderBoxRed = _keyTopBar.currentContext
+          .findRenderObject();
+      final topHeight = renderBoxRed.size.height;
+      return containerHeight - topHeight - 50;
+    }
+    return containerHeight - 150;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +36,34 @@ class ListPostsScreen extends StatelessWidget {
         isDismissible: false, type: ProgressDialogType.Normal);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      Future.delayed(Duration(milliseconds: 300), () async {
+      _firebaseMessaging.configure(
+        onMessage: (Map<String, dynamic> message) async {
+          print("UET onMessage: $message");
+          bloc.loadListPosts(context, false);
+        },
+        onBackgroundMessage: myBackgroundMessageHandler,
+        onLaunch: (Map<String, dynamic> message) async {
+          print("UET onLaunch: $message");
+          bloc.loadListPosts(context, false);
+        },
+        onResume: (Map<String, dynamic> message) async {
+          print("UET onResume: $message");
+          bloc.loadListPosts(context, false);
+        },
+      );
+      _firebaseMessaging.requestNotificationPermissions(
+          const IosNotificationSettings(
+              sound: true, badge: true, alert: true, provisional: true));
+      _firebaseMessaging.onIosSettingsRegistered
+          .listen((IosNotificationSettings settings) {
+        print("Settings registered: $settings");
+      });
+      _firebaseMessaging.getToken().then((String token) async {
+        if (token != null) {
+          print("FCM Token: $token");
+          bloc.saveFcmToken(token);
+        }
+        bloc.loadUsername();
         progressDialog.style(message: "Loading posts...");
         await progressDialog.show();
         await bloc.checkAndUpdateFcmToken();
@@ -34,12 +75,12 @@ class ListPostsScreen extends StatelessWidget {
       bloc: bloc,
       child: Scaffold(
         appBar: null,
-        body: _buildBody(bloc),
+        body: _buildBody(context, bloc),
       ),
     );
   }
 
-  Widget _buildBody(ListPostsBloc bloc) {
+  Widget _buildBody(BuildContext context, ListPostsBloc bloc) {
     return Align(
       alignment: Alignment.topLeft,
       child: SafeArea(
@@ -53,7 +94,33 @@ class ListPostsScreen extends StatelessWidget {
           color: Colors.white,
           child: Padding(
             padding: EdgeInsets.all(Common.PADDING),
-            child: _buildResults(bloc),
+            child: Column(
+              children: <Widget>[
+                Row(
+                  key: _keyTopBar,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    StreamBuilder<String>(
+                        stream: bloc.username,
+                        builder: (context, snapshot) {
+                          final username = snapshot.data;
+                          if (username == null) {
+                            return Text("Hello there");
+                          }
+
+                          return Text("Hello $username,");
+                        }),
+                    FlatButton(
+                        onPressed: () => bloc.logOut(context),
+                        color: Colors.blue,
+                        child: Text("Log out"))
+                  ],
+                ),
+                Container(
+                    height: _calculateListHeight(MediaQuery.of(context).size.height),
+                    child: _buildResults(bloc)),
+              ],
+            ),
           ),
         ),
       ),
@@ -79,7 +146,8 @@ class ListPostsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, List<Post> posts, ListPostsBloc bloc) {
+  Widget _buildList(
+      BuildContext context, List<Post> posts, ListPostsBloc bloc) {
     return SmartRefresher(
       enablePullDown: true,
       enablePullUp: bloc.enableLoadMore,
@@ -105,7 +173,7 @@ class ListPostsScreen extends StatelessWidget {
                   ),
                   subtitle: Text(post.createdDate ?? "Undefined"),
                   onTap: () async {
-                    if(!post.isRead) {
+                    if (!post.isRead) {
                       progressDialog = ProgressDialog(context,
                           isDismissible: false,
                           type: ProgressDialogType.Normal);
@@ -123,4 +191,18 @@ class ListPostsScreen extends StatelessWidget {
             ),
     );
   }
+}
+
+Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
+  if (message.containsKey('data')) {
+    final dynamic data = message['data'];
+  }
+
+  if (message.containsKey('notification')) {
+    final dynamic notification = message['notification'];
+  }
+
+  /*
+  * {notification: {title: Test ne, body: Test xem sao}, data: {click_action: FLUTTER_NOTIFICATION_CLICK}}
+  * */
 }
