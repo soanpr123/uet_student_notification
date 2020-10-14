@@ -13,9 +13,9 @@ class PagePost {
         : null;
     data.clear();
     if (json['data'] != null) {
-      DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+      DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
       json['data'].forEach((v) {
-        final post = Post.fromJson(json);
+        final post = Post.fromJson(v);
         if(post.createdDate != null) {
           DateTime dateTime = format.parse(post.createdDate, true);
           String formattedDate = DateFormat('kk:mm:ss EEE d-MM-yyyy').format(

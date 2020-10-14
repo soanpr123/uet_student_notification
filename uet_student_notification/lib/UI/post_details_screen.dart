@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/post_details_bloc.dart';
@@ -20,7 +21,7 @@ class PostDetailsScreen extends StatelessWidget {
         isDismissible: false, type: ProgressDialogType.Normal);
     progressDialog.style(message: "Loading details...");
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async{
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await progressDialog.show();
       bloc.loadPostDetails(context, post.id);
     });
@@ -31,7 +32,7 @@ class PostDetailsScreen extends StatelessWidget {
         appBar: AppBar(
           title: StreamBuilder<String>(
             stream: bloc.title,
-            builder: (context, snapshot){
+            builder: (context, snapshot) {
               final title = snapshot.data;
               return Text(
                 title == null ? (post.title ?? "Undefined") : title,
@@ -80,7 +81,8 @@ class PostDetailsScreen extends StatelessWidget {
                 child: Text("Loading..."), alignment: Alignment.center);
           }
           return Container(
-              child: Text(result.content), alignment: Alignment.topCenter);
+              child: Html(data: result.content),
+              alignment: Alignment.topCenter);
         });
   }
 }

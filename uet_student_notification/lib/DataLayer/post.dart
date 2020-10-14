@@ -9,7 +9,7 @@ class Post {
   Post(this.id);
 
   Post.fromJson(Map json)
-      : id = json["post_id"],
+      : id = json["id"],
         title = json["post_title"],
         content = json["post_content"],
         createdDate = json["created_at"],
