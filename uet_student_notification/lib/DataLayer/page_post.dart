@@ -24,6 +24,7 @@ class PagePost {
         }
         data.add(post);
       });
+      data.sort((a, b) => b.createdDate.compareTo(a.createdDate));
     }
   }
 }
