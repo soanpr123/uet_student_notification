@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +43,7 @@ class ListPostsScreen extends StatelessWidget {
           print("UET onMessage: $message");
           bloc.loadListPosts(context, false);
         },
-        onBackgroundMessage: myBackgroundMessageHandler,
+        onBackgroundMessage: Platform.isAndroid ? myBackgroundMessageHandler : null,
         onLaunch: (Map<String, dynamic> message) async {
           print("UET onLaunch: $message");
           bloc.loadListPosts(context, false);
