@@ -11,7 +11,7 @@ import 'package:uet_student_notification/UI/log_in_screen.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
 
 class APIClient {
-  final _baseUrl = "112.137.129.31";
+  final _baseUrl = "thongbao.uet.vnu.edu.vn";
   final _contextRoot = 'api';
   final _login = "auth/ldap/login";
   final _updateFCMToken = "v1/update-firebase-token";
@@ -105,7 +105,7 @@ class APIClient {
 
   Future<Map> postRequest(
       {@required String path, Map<String, dynamic> body}) async {
-    final uri = Uri.http(_baseUrl, '$_contextRoot/$path');
+    final uri = Uri.https(_baseUrl, '$_contextRoot/$path');
     final results = await http
         .post(uri, headers: _headers, body: json.encode(body))
         .catchError((Object error) {
@@ -125,7 +125,7 @@ class APIClient {
 
   Future<Map> getRequest(
       {@required String path, Map<String, String> parameters}) async {
-    final uri = Uri.http(_baseUrl, '$_contextRoot/$path', parameters);
+    final uri = Uri.https(_baseUrl, '$_contextRoot/$path', parameters);
     final results =
         await http.get(uri, headers: _headers).catchError((Object error) {
       print(error);
@@ -146,7 +146,7 @@ class APIClient {
       {@required String path,
       Map<String, dynamic> body,
       String accessToken}) async {
-    final uri = Uri.http(_baseUrl, '$_contextRoot/$path');
+    final uri = Uri.https(_baseUrl, '$_contextRoot/$path');
     final results = await http
         .post(uri,
             headers: _headersWithToken(accessToken), body: json.encode(body))
@@ -176,7 +176,7 @@ class APIClient {
       {@required String path,
       Map<String, String> parameters,
       String accessToken}) async {
-    final uri = Uri.http(_baseUrl, '$_contextRoot/$path', parameters);
+    final uri = Uri.https(_baseUrl, '$_contextRoot/$path', parameters);
     final results = await http
         .get(uri, headers: _headersWithToken(accessToken))
         .catchError((Object error) {
