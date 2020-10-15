@@ -17,7 +17,6 @@ class ListPostsBloc extends Bloc{
   static const PAGE_SIZE = 10;
   bool enableLoadMore = true;
   final _usernameController = StreamController<String>();
-
   Stream<List<Post>> get listPosts => _controller.stream;
   Stream<String> get username => _usernameController.stream;
 
@@ -47,9 +46,7 @@ class ListPostsBloc extends Bloc{
     final result = await _client.doGetListPosts(context, userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
     if(result != null) {
       final listPosts = result.data;
-      if (result.pagination.currentPage == result.pagination.lastPage) {
-        enableLoadMore = false;
-      }
+      enableLoadMore = !(result.pagination.currentPage == result.pagination.lastPage);
       list.addAll(listPosts);
       _controller.sink.add(list);
     }

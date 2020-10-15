@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:uet_student_notification/DataLayer/post.dart';
 
 class PagePost {
+
   Pagination pagination;
   List<Post> data = List();
 
@@ -17,14 +18,14 @@ class PagePost {
       json['data'].forEach((v) {
         final post = Post.fromJson(v);
         if(post.createdDate != null) {
-          DateTime dateTime = format.parse(post.createdDate, true);
+          DateTime dateTime = format.parse(post.createdDate, true).toLocal();
           String formattedDate = DateFormat('kk:mm:ss EEE d-MM-yyyy').format(
               dateTime);
           post.createdDate = formattedDate;
         }
         data.add(post);
       });
-      data.sort((a, b) => b.createdDate.compareTo(a.createdDate));
+      data.sort((a, b) => b.id.compareTo(a.id));
     }
   }
 }
