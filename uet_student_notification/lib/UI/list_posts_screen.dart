@@ -28,7 +28,7 @@ class ListPostsScreen extends StatelessWidget {
       final topHeight = renderBoxRed.size.height;
       return containerHeight - topHeight - 50;
     }
-    return containerHeight - 150;
+    return containerHeight - 180;
   }
 
   @override

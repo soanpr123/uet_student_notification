@@ -46,7 +46,7 @@ class ListPostsBloc extends Bloc{
     final result = await _client.doGetListPosts(context, userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
     if(result != null) {
       final listPosts = result.data;
-      enableLoadMore = !(result.pagination.currentPage == result.pagination.lastPage);
+      enableLoadMore = result.pagination.currentPage != result.pagination.lastPage;
       list.addAll(listPosts);
       _controller.sink.add(list);
     }
