@@ -26,7 +26,7 @@ class ListPostsScreen extends StatelessWidget {
       final RenderBox renderBoxRed = _keyTopBar.currentContext
           .findRenderObject();
       final topHeight = renderBoxRed.size.height;
-      return containerHeight - topHeight - 50;
+      return containerHeight - topHeight - 150;
     }
     return containerHeight - 180;
   }

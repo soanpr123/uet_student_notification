@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/log_in_bloc.dart';
@@ -12,9 +13,20 @@ ProgressDialog progressDialog;
 class LogInScreen extends StatelessWidget {
   final usernameTextController = TextEditingController();
   final passwordTextController = TextEditingController();
-
+  final _storage = new FlutterSecureStorage();
+  void read() async {
+    String email = await _storage.read(key: "email");
+    String pass = await _storage.read(key: "pass");
+    print("value = $email");
+  print("value = $pass");
+  usernameTextController.text = email;
+  passwordTextController.text = pass;
+  }
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      read();
+    });
     final bloc = LogInBloc();
     progressDialog = ProgressDialog(context,
         isDismissible: false, type: ProgressDialogType.Normal);
@@ -144,6 +156,8 @@ class LogInScreen extends StatelessWidget {
                 .then((value) async {
               await progressDialog.hide();
               if (value) {
+                _storage.write(key: "email", value: usernameTextController.text);
+                _storage.write(key: "pass", value: passwordTextController.text);
                 usernameTextController.text = "";
                 passwordTextController.text = "";
                 context.replaceWith(ListPostsScreen());
