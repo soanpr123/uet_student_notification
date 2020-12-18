@@ -10,9 +10,9 @@ import 'package:uet_student_notification/DataLayer/post.dart';
 ProgressDialog progressDialog;
 
 class PostDetailsScreen extends StatelessWidget {
-  final Post post;
+  final postId;
 
-  const PostDetailsScreen({Key key, @required this.post}) : super(key: key);
+  const PostDetailsScreen({Key key, @required this.postId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class PostDetailsScreen extends StatelessWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await progressDialog.show();
-      bloc.loadPostDetails(context, post.id);
+      bloc.loadPostDetails(context, postId);
     });
 
     return BlocProvider<PostDetailsBloc>(
@@ -35,7 +35,7 @@ class PostDetailsScreen extends StatelessWidget {
             builder: (context, snapshot) {
               final title = snapshot.data;
               return Text(
-                title == null ? (post.title ?? "Undefined") : title,
+                title == null ? "Undefined" : title,
                 style: TextStyle(color: Colors.white),
               );
             },
