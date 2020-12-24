@@ -11,8 +11,13 @@ class LogInBloc extends Bloc {
   final _controller = StreamController<User>();
   final _showErrorController = StreamController<bool>();
 
+  StreamController _controllerUsername = StreamController();
+  StreamController _controllerPass = StreamController();
+
   Stream<User> get loggedInUser => _controller.stream;
   Stream<bool> get isShowError => _showErrorController.stream;
+  Stream get streamUsername => _controllerUsername.stream;
+  Stream get streamPass => _controllerPass.stream;
   final _client = APIClient();
 
   void setShowError(bool isShowError){
@@ -28,9 +33,20 @@ class LogInBloc extends Bloc {
       await preferences.setString(Common.USER_NAME, user.username);
       await preferences.setString(Common.ACCESS_TOKEN, user.accessToken);
       await preferences.setString(Common.TOKEN_TYPE, user.tokenType);
+      await preferences.setString(Common.PASS, password);
       return true;
     }
     return false;
+  }
+
+  addDataStream()async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String email =  preferences.getString(Common.USER_NAME);
+    String pass =  preferences.getString(Common.PASS);
+    if(email != null && pass != null){
+      _controllerUsername.sink.add(email);
+      _controllerPass.sink.add(pass);
+    }
   }
 
   @override

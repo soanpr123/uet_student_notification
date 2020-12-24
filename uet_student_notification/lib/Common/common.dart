@@ -8,6 +8,7 @@ import '../DataLayer/post.dart';
 const String IS_LOGGED_IN = "is_logged_in";
 const String USER_ID = "user_id";
 const String USER_NAME = "user_name";
+const String PASS = "pass";
 const String ACCESS_TOKEN = "access_token";
 const String FCM_TOKEN = "fcm_token";
 const String TOKEN_TYPE = "token_type";
