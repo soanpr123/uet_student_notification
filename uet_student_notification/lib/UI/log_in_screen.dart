@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/log_in_bloc.dart';
@@ -13,12 +14,19 @@ class LogInScreen extends StatelessWidget {
   final usernameTextController = TextEditingController();
   final passwordTextController = TextEditingController();
 
+
   @override
   Widget build(BuildContext context) {
+
+
     final bloc = LogInBloc();
     progressDialog = ProgressDialog(context,
         isDismissible: false, type: ProgressDialogType.Normal);
     progressDialog.style(message: "Logging in...");
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+bloc.addDataStream();
+
+    });
     return BlocProvider<LogInBloc>(
       bloc: bloc,
       child: Scaffold(
@@ -58,11 +66,11 @@ class LogInScreen extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.all(Common.PADDING),
-                child: _buildEnterUsername(),
+                child: _buildEnterUsername(bloc),
               ),
               Padding(
                 padding: const EdgeInsets.all(Common.PADDING),
-                child: _buildEnterPassword(),
+                child: _buildEnterPassword(bloc),
               ),
               StreamBuilder<bool>(
                 stream: bloc.isShowError,
@@ -90,35 +98,49 @@ class LogInScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEnterUsername() {
-    return IntrinsicHeight(
-      child: TextField(
-        obscureText: false,
-        decoration: InputDecoration(
-          hintText: "Username",
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Common.INPUT_RADIUS)),
-          fillColor: Colors.grey[100],
-          filled: true,
-        ),
-        controller: usernameTextController,
-      ),
+  Widget _buildEnterUsername(LogInBloc bloc) {
+    return StreamBuilder(
+      stream: bloc.streamUsername,
+      builder: (context, snapshot) {
+        String username = snapshot.hasData ? snapshot.data : null;
+        usernameTextController.text = username;
+        return IntrinsicHeight(
+          child: TextField(
+            obscureText: false,
+            decoration: InputDecoration(
+              hintText: "Username",
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(Common.INPUT_RADIUS)),
+              fillColor: Colors.grey[100],
+              filled: true,
+            ),
+            controller: usernameTextController,
+          ),
+        );
+      }
     );
   }
 
-  Widget _buildEnterPassword() {
-    return IntrinsicHeight(
-      child: TextField(
-        obscureText: true,
-        decoration: InputDecoration(
-          hintText: "Password",
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Common.INPUT_RADIUS)),
-          fillColor: Colors.grey[100],
-          filled: true,
-        ),
-        controller: passwordTextController,
-      ),
+  Widget _buildEnterPassword(LogInBloc bloc) {
+    return StreamBuilder(
+      stream: bloc.streamPass,
+      builder: (context, snapshot) {
+        String pass = snapshot.hasData ? snapshot.data : null;
+        passwordTextController.text = pass;
+        return IntrinsicHeight(
+          child: TextField(
+            obscureText: true,
+            decoration: InputDecoration(
+              hintText: "Password",
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(Common.INPUT_RADIUS)),
+              fillColor: Colors.grey[100],
+              filled: true,
+            ),
+            controller: passwordTextController,
+          ),
+        );
+      }
     );
   }
 
