@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/log_in_bloc.dart';

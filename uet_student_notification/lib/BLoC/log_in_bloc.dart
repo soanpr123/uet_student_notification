@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uet_student_notification/BLoC/bloc.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
@@ -11,8 +10,8 @@ class LogInBloc extends Bloc {
   final _controller = StreamController<User>();
   final _showErrorController = StreamController<bool>();
 
-  StreamController _controllerUsername = StreamController();
-  StreamController _controllerPass = StreamController();
+  final _controllerUsername = StreamController<String>();
+  final _controllerPass = StreamController<String>();
 
   Stream<User> get loggedInUser => _controller.stream;
   Stream<bool> get isShowError => _showErrorController.stream;
@@ -53,5 +52,7 @@ class LogInBloc extends Bloc {
   void dispose() {
     _controller.close();
     _showErrorController.close();
+    _controllerUsername.close();
+    _controllerPass.close();
   }
 }

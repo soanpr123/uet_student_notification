@@ -32,6 +32,7 @@ class ListPostsBloc extends Bloc{
     await preferences.setString(Common.ACCESS_TOKEN, "");
     await preferences.setString(Common.TOKEN_TYPE, "");
     await preferences.setBool(Common.IS_LOGGED_IN,null);
+    await preferences.setBool(Common.IS_UPDATE_FCM_TOKEN, null);
     context.replaceAllWith(LogInScreen());
   }
 

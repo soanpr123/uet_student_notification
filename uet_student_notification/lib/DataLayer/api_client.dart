@@ -21,7 +21,11 @@ class APIClient {
 
   void clearUser() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.clear();
+    await preferences.setInt(Common.USER_ID, null);
+    await preferences.setString(Common.ACCESS_TOKEN, "");
+    await preferences.setString(Common.TOKEN_TYPE, "");
+    await preferences.setBool(Common.IS_LOGGED_IN, null);
+    await preferences.setBool(Common.IS_UPDATE_FCM_TOKEN, null);
   }
 
   Future<User> doLogin(String username, String password) async {

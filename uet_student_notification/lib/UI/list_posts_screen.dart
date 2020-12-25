@@ -1,7 +1,7 @@
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:uet_student_notification/BLoC/bloc_provider.dart';
@@ -20,16 +20,6 @@ class ListPostsScreen extends StatelessWidget {
 
   final GlobalKey _keyTopBar = GlobalKey();
 
-  double _calculateListHeight(double containerHeight){
-    if(_keyTopBar.currentContext != null) {
-      final RenderBox renderBoxRed = _keyTopBar.currentContext
-          .findRenderObject();
-      final topHeight = renderBoxRed.size.height;
-      return containerHeight - topHeight - 150;
-    }
-    return containerHeight - 180;
-  }
-
   @override
   Widget build(BuildContext context) {
     final bloc = ListPostsBloc();
@@ -43,7 +33,7 @@ class ListPostsScreen extends StatelessWidget {
         bloc.loadListPosts(context, false);
       },
       onBackgroundMessage: null,
-      onLaunch: (Map<String, dynamic> message) async{
+      onLaunch: (Map<String, dynamic> message) async {
         print("UET onLaunch: $message");
         showPostDetailsOnTap(context, bloc, message);
       },
@@ -70,9 +60,7 @@ class ListPostsScreen extends StatelessWidget {
       await bloc.checkAndUpdateFcmToken();
       bloc.loadListPosts(context, false);
     });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-
-    });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {});
 
     return BlocProvider<ListPostsBloc>(
       bloc: bloc,
@@ -90,38 +78,44 @@ class ListPostsScreen extends StatelessWidget {
         left: true,
         top: true,
         right: true,
-        bottom: true,
+        bottom: false,
         child: Container(
+          height: double.infinity,
           margin: EdgeInsets.all(0.0),
           constraints: BoxConstraints.expand(),
           color: Colors.white,
           child: Padding(
-            padding: EdgeInsets.all(Common.PADDING),
+            padding: EdgeInsets.only(bottom: Common.PADDING),
             child: Column(
+              mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                Row(
-                  key: _keyTopBar,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    StreamBuilder<String>(
-                        stream: bloc.username,
-                        builder: (context, snapshot) {
-                          final username = snapshot.data;
-                          if (username == null) {
-                            return Text("Hello there");
-                          }
+                Padding(
+                  padding: EdgeInsets.only(top: Common.PADDING, left: Common.PADDING, right: Common.PADDING),
+                  child: Row(
+                    key: _keyTopBar,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      StreamBuilder<String>(
+                          stream: bloc.username,
+                          builder: (context, snapshot) {
+                            final username = snapshot.data;
+                            if (username == null) {
+                              return Text("Hello there");
+                            }
 
-                          return Text("Hello $username,");
-                        }),
-                    FlatButton(
-                        onPressed: () => bloc.logOut(context),
-                        color: Colors.blue,
-                        child: Text("Log out"))
-                  ],
+                            return Text("Hello $username,");
+                          }),
+                      FlatButton(
+                          onPressed: () => bloc.logOut(context),
+                          color: Colors.blue,
+                          child: Text("Log out"))
+                    ],
+                  ),
                 ),
-                Container(
-                    height: _calculateListHeight(MediaQuery.of(context).size.height),
-                    child: _buildResults(bloc)),
+                Flexible(
+                    child: _buildResults(bloc),
+                    fit: FlexFit.loose
+                ),
               ],
             ),
           ),
@@ -143,6 +137,14 @@ class ListPostsScreen extends StatelessWidget {
           return Container(
               child: Text("Loading..."), alignment: Alignment.center);
         }
+
+        int count = 0;
+        for (Post post in results) {
+          if (!post.isRead) {
+            count++;
+          }
+        }
+        FlutterAppBadger.updateBadgeCount(count);
 
         return _buildList(context, results, bloc);
       },
@@ -168,9 +170,25 @@ class ListPostsScreen extends StatelessWidget {
           : ListView.separated(
               itemBuilder: (context, index) {
                 final post = posts[index];
+                final title = post.title ?? "Undefined";
+                final firstCharacter = title.substring(0, 1);
                 return ListTile(
+                  leading: Container(
+                      width: 40,
+                      height: 40,
+                      alignment: Alignment.centerLeft,
+                      child: new SizedBox(
+                          child: FloatingActionButton(
+                        heroTag: "$index",
+                        backgroundColor: Colors.blue,
+                        child: Text(
+                          firstCharacter,
+                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+                        ),
+                        onPressed: null,
+                      ))),
                   title: Text(
-                    post.title ?? "Undefined",
+                    title,
                     style: TextStyle(
                         color: post.isRead ? Colors.black : Colors.red),
                   ),
@@ -196,14 +214,14 @@ class ListPostsScreen extends StatelessWidget {
   }
 }
 
-void showPostDetailsOnTap(BuildContext context, ListPostsBloc bloc, Map<String, dynamic> message) async{
+void showPostDetailsOnTap(BuildContext context, ListPostsBloc bloc,
+    Map<String, dynamic> message) async {
   final dynamic data = message['data'];
   final postId = data["post_id"];
-  for(Post post in bloc.list){
-    if(post.id == postId){
+  for (Post post in bloc.list) {
+    if (post.id == postId) {
       progressDialog = ProgressDialog(context,
-          isDismissible: false,
-          type: ProgressDialogType.Normal);
+          isDismissible: false, type: ProgressDialogType.Normal);
       progressDialog.style(message: "Updating...");
       await progressDialog.show();
       await bloc.updatePostStatus(context, post.id);
@@ -212,4 +230,3 @@ void showPostDetailsOnTap(BuildContext context, ListPostsBloc bloc, Map<String, 
   }
   context.navigateTo(PostDetailsScreen(postId: postId));
 }
-
