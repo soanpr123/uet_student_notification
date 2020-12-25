@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
@@ -36,41 +35,43 @@ class ListPostsScreen extends StatelessWidget {
     final bloc = ListPostsBloc();
     progressDialog = ProgressDialog(context,
         isDismissible: false, type: ProgressDialogType.Normal);
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _firebaseMessaging.configure(
-        onMessage: (Map<String, dynamic> message) async {
-          print("UET onMessage: $message");
-          bloc.loadListPosts(context, false);
-        },
-        onBackgroundMessage: Platform.isAndroid ? myBackgroundMessageHandler : null,
-        onLaunch: (Map<String, dynamic> message) async {
-          print("UET onLaunch: $message");
-          bloc.loadListPosts(context, false);
-        },
-        onResume: (Map<String, dynamic> message) async {
-          print("UET onResume: $message");
-          bloc.loadListPosts(context, false);
-        },
-      );
-      _firebaseMessaging.requestNotificationPermissions(
-          const IosNotificationSettings(
-              sound: true, badge: true, alert: true, provisional: true));
-      _firebaseMessaging.onIosSettingsRegistered
-          .listen((IosNotificationSettings settings) {
-        print("Settings registered: $settings");
-      });
-      _firebaseMessaging.getToken().then((String token) async {
-        if (token != null) {
-          print("FCM Token: $token");
-          bloc.saveFcmToken(token);
-        }
-        bloc.loadUsername();
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("UET onMessage: $message");
         progressDialog.style(message: "Loading posts...");
         await progressDialog.show();
-        await bloc.checkAndUpdateFcmToken();
         bloc.loadListPosts(context, false);
-      });
+      },
+      onBackgroundMessage: null,
+      onLaunch: (Map<String, dynamic> message) async{
+        print("UET onLaunch: $message");
+        showPostDetailsOnTap(context, bloc, message);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("UET onResume: $message");
+        showPostDetailsOnTap(context, bloc, message);
+      },
+    );
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(
+            sound: true, badge: true, alert: true, provisional: true));
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
+    _firebaseMessaging.getToken().then((String token) async {
+      if (token != null) {
+        print("FCM Token: $token");
+        bloc.saveFcmToken(token);
+      }
+      bloc.loadUsername();
+      progressDialog.style(message: "Loading posts...");
+      await progressDialog.show();
+      await bloc.checkAndUpdateFcmToken();
+      bloc.loadListPosts(context, false);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+
     });
 
     return BlocProvider<ListPostsBloc>(
@@ -184,7 +185,7 @@ class ListPostsScreen extends StatelessWidget {
                       await bloc.updatePostStatus(context, post.id);
                       await progressDialog.hide();
                     }
-                    context.navigateTo(PostDetailsScreen(post: post));
+                    context.navigateTo(PostDetailsScreen(postId: post.id));
                   },
                 );
               },
@@ -195,16 +196,20 @@ class ListPostsScreen extends StatelessWidget {
   }
 }
 
-Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
-  if (message.containsKey('data')) {
-    final dynamic data = message['data'];
+void showPostDetailsOnTap(BuildContext context, ListPostsBloc bloc, Map<String, dynamic> message) async{
+  final dynamic data = message['data'];
+  final postId = data["post_id"];
+  for(Post post in bloc.list){
+    if(post.id == postId){
+      progressDialog = ProgressDialog(context,
+          isDismissible: false,
+          type: ProgressDialogType.Normal);
+      progressDialog.style(message: "Updating...");
+      await progressDialog.show();
+      await bloc.updatePostStatus(context, post.id);
+      await progressDialog.hide();
+    }
   }
-
-  if (message.containsKey('notification')) {
-    final dynamic notification = message['notification'];
-  }
-
-  /*
-  * {notification: {title: Test ne, body: Test xem sao}, data: {click_action: FLUTTER_NOTIFICATION_CLICK}}
-  * */
+  context.navigateTo(PostDetailsScreen(postId: postId));
 }
+
