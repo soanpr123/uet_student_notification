@@ -37,6 +37,7 @@ class Pagination {
   int lastPage;
   int from;
   int to;
+  int countRead;
 
   Pagination(
       {this.total,
@@ -44,7 +45,8 @@ class Pagination {
         this.currentPage,
         this.lastPage,
         this.from,
-        this.to});
+        this.to,
+        this.countRead});
 
   Pagination.fromJson(Map<String, dynamic> json) {
     total = json['total'];
@@ -53,6 +55,7 @@ class Pagination {
     lastPage = json['last_page'];
     from = json['from'];
     to = json['to'];
+    countRead = json['count_isRead'];
   }
 
   Map<String, dynamic> toJson() {
@@ -63,6 +66,7 @@ class Pagination {
     data['last_page'] = this.lastPage;
     data['from'] = this.from;
     data['to'] = this.to;
+    data['count_isRead'] = this.countRead;
     return data;
   }
 }

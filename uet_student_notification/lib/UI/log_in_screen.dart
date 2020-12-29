@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/log_in_bloc.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
+import 'package:uet_student_notification/Common/loading_overlay.dart';
 import 'package:uet_student_notification/Common/navigation_extension.dart';
 import 'package:uet_student_notification/UI/list_posts_screen.dart';
 
-ProgressDialog progressDialog;
-
+LoadingOverlay loadingOverlay;
 class LogInScreen extends StatelessWidget {
   final usernameTextController = TextEditingController();
   final passwordTextController = TextEditingController();
@@ -16,15 +15,11 @@ class LogInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    loadingOverlay = LoadingOverlay.of(context);
 
     final bloc = LogInBloc();
-    progressDialog = ProgressDialog(context,
-        isDismissible: false, type: ProgressDialogType.Normal);
-    progressDialog.style(message: "Logging in...");
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-bloc.addDataStream();
-
+      bloc.addDataStream();
     });
     return BlocProvider<LogInBloc>(
       bloc: bloc,
@@ -158,12 +153,12 @@ bloc.addDataStream();
             style: TextStyle(color: Colors.white),
           ),
           onPressed: () async {
-            await progressDialog.show();
+            loadingOverlay.show();
             bloc
                 .doLogin(
                     usernameTextController.text, passwordTextController.text)
                 .then((value) async {
-              await progressDialog.hide();
+              loadingOverlay.hide();
               if (value) {
                 usernameTextController.text = "";
                 passwordTextController.text = "";

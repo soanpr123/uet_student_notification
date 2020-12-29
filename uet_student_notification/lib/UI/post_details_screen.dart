@@ -1,13 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/post_details_bloc.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
+import 'package:uet_student_notification/Common/loading_overlay.dart';
 import 'package:uet_student_notification/DataLayer/post.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-ProgressDialog progressDialog;
+LoadingOverlay loadingOverlay;
 
 class PostDetailsScreen extends StatelessWidget {
   final postId;
@@ -16,13 +18,11 @@ class PostDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = PostDetailsBloc();
-    progressDialog = ProgressDialog(context,
-        isDismissible: false, type: ProgressDialogType.Normal);
-    progressDialog.style(message: "Loading details...");
+    loadingOverlay = LoadingOverlay.of(context);
 
+    final bloc = PostDetailsBloc();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      await progressDialog.show();
+      loadingOverlay.show();
       bloc.loadPostDetails(context, postId);
     });
 
@@ -71,18 +71,29 @@ class PostDetailsScreen extends StatelessWidget {
     return StreamBuilder<Post>(
         stream: bloc.post,
         builder: (context, snapshot) {
-          progressDialog.hide().then((value) {
-            print("Hide: $value");
-          });
-
           final result = snapshot.data;
           if (result == null) {
             return Container(
                 child: Text("Loading..."), alignment: Alignment.center);
           }
+
+          loadingOverlay.hide();
           return Container(
-              child: Html(data: result.content),
+              child: Html(
+                  data: result.content,
+                  shrinkWrap: true,
+                  onLinkTap: (url) {
+                    _launchURL(url);
+                  }),
               alignment: Alignment.topCenter);
         });
+  }
+
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      print('Could not launch $url');
+    }
   }
 }

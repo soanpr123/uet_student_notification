@@ -2,16 +2,16 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/list_posts_bloc.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
+import 'package:uet_student_notification/Common/loading_overlay.dart';
 import 'package:uet_student_notification/Common/navigation_extension.dart';
 import 'package:uet_student_notification/DataLayer/post.dart';
 import 'package:uet_student_notification/UI/post_details_screen.dart';
 
-ProgressDialog progressDialog;
+LoadingOverlay loadingOverlay;
 
 class ListPostsScreen extends StatelessWidget {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
@@ -23,13 +23,11 @@ class ListPostsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = ListPostsBloc();
-    progressDialog = ProgressDialog(context,
-        isDismissible: false, type: ProgressDialogType.Normal);
+    loadingOverlay = LoadingOverlay.of(context);
+
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         print("UET onMessage: $message");
-        progressDialog.style(message: "Loading posts...");
-        await progressDialog.show();
         bloc.loadListPosts(context, false);
       },
       onBackgroundMessage: null,
@@ -55,12 +53,9 @@ class ListPostsScreen extends StatelessWidget {
         bloc.saveFcmToken(token);
       }
       bloc.loadUsername();
-      progressDialog.style(message: "Loading posts...");
-      await progressDialog.show();
       await bloc.checkAndUpdateFcmToken();
       bloc.loadListPosts(context, false);
     });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {});
 
     return BlocProvider<ListPostsBloc>(
       bloc: bloc,
@@ -87,10 +82,14 @@ class ListPostsScreen extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.only(bottom: Common.PADDING),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.only(top: Common.PADDING, left: Common.PADDING, right: Common.PADDING),
+                  padding: EdgeInsets.only(
+                      top: Common.PADDING,
+                      left: Common.PADDING,
+                      right: Common.PADDING),
                   child: Row(
                     key: _keyTopBar,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -108,14 +107,30 @@ class ListPostsScreen extends StatelessWidget {
                       FlatButton(
                           onPressed: () => bloc.logOut(context),
                           color: Colors.blue,
-                          child: Text("Log out"))
+                          child: Text(
+                            "Log out",
+                            style: TextStyle(color: Colors.white),
+                          ))
                     ],
                   ),
                 ),
-                Flexible(
-                    child: _buildResults(bloc),
-                    fit: FlexFit.loose
+                Padding(
+                  padding: EdgeInsets.only(left: Common.PADDING),
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    child: StreamBuilder<int>(
+                      stream: bloc.unread,
+                      builder: (context, snapshot) {
+                        final unread = snapshot.data ?? 0;
+                        if (unread > 0) {
+                          FlutterAppBadger.updateBadgeCount(unread);
+                        }
+                        return Text("Unread: $unread posts");
+                      },
+                    ),
+                  ),
                 ),
+                Flexible(child: _buildResults(bloc), fit: FlexFit.loose),
               ],
             ),
           ),
@@ -128,24 +143,12 @@ class ListPostsScreen extends StatelessWidget {
     return StreamBuilder<List<Post>>(
       stream: bloc.listPosts,
       builder: (context, snapshot) {
-        progressDialog.hide().then((value) {
-          print("Hide: $value");
-        });
         final results = snapshot.data;
 
         if (results == null) {
           return Container(
               child: Text("Loading..."), alignment: Alignment.center);
         }
-
-        int count = 0;
-        for (Post post in results) {
-          if (!post.isRead) {
-            count++;
-          }
-        }
-        FlutterAppBadger.updateBadgeCount(count);
-
         return _buildList(context, results, bloc);
       },
     );
@@ -195,13 +198,9 @@ class ListPostsScreen extends StatelessWidget {
                   subtitle: Text(post.createdDate ?? "Undefined"),
                   onTap: () async {
                     if (!post.isRead) {
-                      progressDialog = ProgressDialog(context,
-                          isDismissible: false,
-                          type: ProgressDialogType.Normal);
-                      progressDialog.style(message: "Updating...");
-                      await progressDialog.show();
+                      loadingOverlay.show();
                       await bloc.updatePostStatus(context, post.id);
-                      await progressDialog.hide();
+                      loadingOverlay.hide();
                     }
                     context.navigateTo(PostDetailsScreen(postId: post.id));
                   },
@@ -218,15 +217,13 @@ void showPostDetailsOnTap(BuildContext context, ListPostsBloc bloc,
     Map<String, dynamic> message) async {
   final dynamic data = message['data'];
   final postId = data["post_id"];
+  final id = int.parse(postId);
   for (Post post in bloc.list) {
-    if (post.id == postId) {
-      progressDialog = ProgressDialog(context,
-          isDismissible: false, type: ProgressDialogType.Normal);
-      progressDialog.style(message: "Updating...");
-      await progressDialog.show();
+    if (post.id == id) {
+      loadingOverlay.show();
       await bloc.updatePostStatus(context, post.id);
-      await progressDialog.hide();
+      loadingOverlay.hide();
     }
   }
-  context.navigateTo(PostDetailsScreen(postId: postId));
+  context.navigateTo(PostDetailsScreen(postId: id));
 }

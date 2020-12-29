@@ -12,13 +12,16 @@ import 'package:uet_student_notification/UI/log_in_screen.dart';
 class ListPostsBloc extends Bloc{
   final _client = APIClient();
   List<Post> list = new List();
-  final _controller = StreamController<List<Post>>();
   int currentPage = 1;
   static const PAGE_SIZE = 10;
   bool enableLoadMore = true;
+  final _controller = StreamController<List<Post>>();
   final _usernameController = StreamController<String>();
+  final _unreadController = StreamController<int>();
   Stream<List<Post>> get listPosts => _controller.stream;
   Stream<String> get username => _usernameController.stream;
+  Stream<int> get unread => _unreadController.stream;
+  int unreadPosts = 0;
 
   void loadUsername() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -42,6 +45,7 @@ class ListPostsBloc extends Bloc{
     }else{
       list.clear();
       currentPage = 1;
+      _controller.sink.add(null);
     }
     SharedPreferences preferences = await SharedPreferences.getInstance();
     final tokenType = preferences.getString(Common.TOKEN_TYPE);
@@ -53,6 +57,8 @@ class ListPostsBloc extends Bloc{
       enableLoadMore = result.pagination.currentPage != result.pagination.lastPage;
       list.addAll(listPosts);
       _controller.sink.add(list);
+      unreadPosts = result.pagination.total - result.pagination.countRead;
+      _unreadController.sink.add(unreadPosts);
     }
   }
 
@@ -85,6 +91,10 @@ class ListPostsBloc extends Bloc{
         post.isRead = result;
       }
     }
+    if(result){
+      unreadPosts--;
+      _unreadController.sink.add(unreadPosts);
+    }
     _controller.sink.add(list);
   }
 
@@ -92,5 +102,6 @@ class ListPostsBloc extends Bloc{
   void dispose() {
     _usernameController.close();
     _controller.close();
+    _unreadController.close();
   }
 }
