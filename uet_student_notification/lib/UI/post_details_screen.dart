@@ -78,14 +78,16 @@ class PostDetailsScreen extends StatelessWidget {
           }
 
           loadingOverlay.hide();
-          return Container(
-              child: Html(
-                  data: result.content,
-                  shrinkWrap: true,
-                  onLinkTap: (url) {
-                    _launchURL(url);
-                  }),
-              alignment: Alignment.topCenter);
+          return SingleChildScrollView(
+            child: Container(
+                child: Html(
+                    data: result.content,
+                    shrinkWrap: true,
+                    onLinkTap: (url) {
+                      _launchURL(url);
+                    }),
+                alignment: Alignment.topCenter),
+          );
         });
   }
 
