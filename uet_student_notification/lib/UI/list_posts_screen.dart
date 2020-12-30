@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -215,8 +217,13 @@ class ListPostsScreen extends StatelessWidget {
 
 void showPostDetailsOnTap(BuildContext context, ListPostsBloc bloc,
     Map<String, dynamic> message) async {
-  final dynamic data = message['data'];
-  final postId = data["post_id"];
+  String postId = "0";
+  if(Platform.isAndroid) {
+    final dynamic data = message['data'];
+    postId = data["post_id"];
+  }else if(Platform.isIOS){
+    postId = message['post_id'];
+  }
   final id = int.parse(postId);
   for (Post post in bloc.list) {
     if (post.id == id) {
