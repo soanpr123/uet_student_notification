@@ -39,6 +39,7 @@ class ListPostsScreen extends StatelessWidget {
       },
       onResume: (Map<String, dynamic> message) async {
         print("UET onResume: $message");
+        bloc.loadListPosts(context, false);
         showPostDetailsOnTap(context, bloc, message);
       },
     );
@@ -225,12 +226,8 @@ void showPostDetailsOnTap(BuildContext context, ListPostsBloc bloc,
     postId = message['post_id'];
   }
   final id = int.parse(postId);
-  for (Post post in bloc.list) {
-    if (post.id == id) {
-      loadingOverlay.show();
-      await bloc.updatePostStatus(context, post.id);
-      loadingOverlay.hide();
-    }
-  }
+  loadingOverlay.show();
+  await bloc.updatePostStatus(context, id);
+  loadingOverlay.hide();
   context.navigateTo(PostDetailsScreen(postId: id));
 }
