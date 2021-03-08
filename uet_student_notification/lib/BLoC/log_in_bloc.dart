@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uet_student_notification/BLoC/bloc.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
@@ -7,6 +8,7 @@ import 'package:uet_student_notification/DataLayer/api_client.dart';
 import 'package:uet_student_notification/DataLayer/user.dart';
 
 class LogInBloc extends Bloc {
+  final _storage = FlutterSecureStorage();
   final _controller = StreamController<User>();
   final _showErrorController = StreamController<bool>();
 
@@ -19,13 +21,30 @@ class LogInBloc extends Bloc {
   Stream get streamPass => _controllerPass.stream;
   final _client = APIClient();
 
-  void setShowError(bool isShowError){
+  void setShowError(bool isShowError) {
     _showErrorController.sink.add(isShowError);
+  }
+
+  Future<bool>CheckToken()async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String token = preferences.getString(Common.ACCESS_TOKEN);
+    var date = DateTime.fromMillisecondsSinceEpoch(1615199715 * 1000);
+    print(date);
+    if(DateTime.now().day >= date.day &&
+        DateTime.now().month >= date.month &&
+        DateTime.now().year >= date.year &&
+        DateTime.now().hour >= date.hour &&
+        DateTime.now().minute >= date.minute &&
+        DateTime.now().second >= date.second){
+      return true;
+    }
+    return false;
   }
 
   Future<bool> doLogin(String username, String password) async {
     final user = await _client.doLogin(username, password);
     SharedPreferences preferences = await SharedPreferences.getInstance();
+
     await preferences.setBool(Common.IS_LOGGED_IN, user != null);
     if (user != null) {
       await preferences.setInt(Common.USER_ID, user.id);
@@ -33,19 +52,21 @@ class LogInBloc extends Bloc {
       await preferences.setString(Common.ACCESS_TOKEN, user.accessToken);
       await preferences.setString(Common.TOKEN_TYPE, user.tokenType);
       await preferences.setString(Common.PASS, password);
+      await _storage.write(key: Common.PASS, value: password);
       return true;
     }
     return false;
   }
 
-  addDataStream()async{
+  addDataStream() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    String email =  preferences.getString(Common.USER_NAME);
-    String pass =  preferences.getString(Common.PASS);
-    if(email != null && pass != null){
-      _controllerUsername.sink.add(email);
-      _controllerPass.sink.add(pass);
-    }
+    String email = preferences.getString(Common.USER_NAME);
+    await _storage.read(key: Common.PASS).then((value) {
+      if (email != null && value != null) {
+        _controllerUsername.sink.add(email);
+        _controllerPass.sink.add(value);
+      }
+    });
   }
 
   @override
