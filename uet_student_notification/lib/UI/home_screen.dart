@@ -18,7 +18,6 @@ class HomeScreen extends StatelessWidget {
     loadingOverlay = LoadingOverlay.of(context);
     final storage = new FlutterSecureStorage();
     final bloc = HomeBLoc();
-final blocs=LogInBloc();
     WidgetsBinding.instance.addPostFrameCallback((_){
       bloc.checkLoggedIn();
     });
@@ -31,7 +30,7 @@ final blocs=LogInBloc();
           final isLoggedIn = snapshot.data;
           if (isLoggedIn == null) {
 
-            return _buildWelcome(blocs,context,isLoggedIn,loadingOverlay,storage);
+            return _buildWelcome();
           }
 
           if (isLoggedIn) {
@@ -44,35 +43,7 @@ final blocs=LogInBloc();
     );
   }
 
-  Widget _buildWelcome(LogInBloc bloc, BuildContext context,bool isLogin,LoadingOverlay loadingOverlay,FlutterSecureStorage storage) {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async{
-      bloc.CheckToken().then((value)async{
-        print("check$value");
-        if(value){
-          // TODO: implement Code here
-          // SharedPreferences preferences = await SharedPreferences.getInstance();
-          // String email =  preferences.getString(Common.USER_NAME);
-          // await storage.read(key: Common.PASS).then((value) {
-          //     if(email != null && value != null){
-          //       loadingOverlay.show();
-          //       bloc.doLogin(email, value).then((value){
-          //         loadingOverlay.hide();
-          //         if (value) {
-          //           Navigator.of(context)
-          //               .pushReplacement(MaterialPageRoute(builder: (context) => ListPostsScreen()));
-          //         } else {
-          //           bloc.setShowError(true);
-          //         }
-          //       });
-          //     }
-          // });
-        }else{
-          // TODO: implement Code here
-        }
-      });
-
-    });
-
+  Widget _buildWelcome() {
     return Container(
         alignment: Alignment.center,
         constraints: BoxConstraints.expand(),

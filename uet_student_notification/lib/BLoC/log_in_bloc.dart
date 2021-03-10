@@ -24,23 +24,6 @@ class LogInBloc extends Bloc {
   void setShowError(bool isShowError) {
     _showErrorController.sink.add(isShowError);
   }
-
-  Future<bool>CheckToken()async{
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String token = preferences.getString(Common.ACCESS_TOKEN);
-    var date = DateTime.fromMillisecondsSinceEpoch(1615199715 * 1000);
-    print(date);
-    if(DateTime.now().day >= date.day &&
-        DateTime.now().month >= date.month &&
-        DateTime.now().year >= date.year &&
-        DateTime.now().hour >= date.hour &&
-        DateTime.now().minute >= date.minute &&
-        DateTime.now().second >= date.second){
-      return true;
-    }
-    return false;
-  }
-
   Future<bool> doLogin(String username, String password) async {
     final user = await _client.doLogin(username, password);
     SharedPreferences preferences = await SharedPreferences.getInstance();
