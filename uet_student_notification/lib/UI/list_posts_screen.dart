@@ -11,14 +11,16 @@ import 'package:uet_student_notification/Common/common.dart' as Common;
 import 'package:uet_student_notification/Common/loading_overlay.dart';
 import 'package:uet_student_notification/Common/navigation_extension.dart';
 import 'package:uet_student_notification/DataLayer/post.dart';
+import 'package:uet_student_notification/UI/item_list_post.dart';
 import 'package:uet_student_notification/UI/post_details_screen.dart';
+import 'package:uet_student_notification/main.dart';
 
 LoadingOverlay loadingOverlay;
 
 class ListPostsScreen extends StatelessWidget {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   final RefreshController _refreshController =
-      RefreshController(initialRefresh: false);
+  RefreshController(initialRefresh: false);
 
   final GlobalKey _keyTopBar = GlobalKey();
 
@@ -32,7 +34,7 @@ class ListPostsScreen extends StatelessWidget {
         print("UET onMessage: $message");
         bloc.loadListPosts(context, false);
       },
-      onBackgroundMessage: null,
+      onBackgroundMessage: BackgroundMessageHandler,
       onLaunch: (Map<String, dynamic> message) async {
         print("UET onLaunch: $message");
         showPostDetailsOnTap(context, bloc, message);
@@ -157,8 +159,8 @@ class ListPostsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildList(
-      BuildContext context, List<Post> posts, ListPostsBloc bloc) {
+  Widget _buildList(BuildContext context, List<Post> posts,
+      ListPostsBloc bloc) {
     return SmartRefresher(
       enablePullDown: true,
       enablePullUp: bloc.enableLoadMore,
@@ -174,48 +176,36 @@ class ListPostsScreen extends StatelessWidget {
       child: posts.isEmpty
           ? Container(child: Text("No posts"), alignment: Alignment.center)
           : ListView.separated(
-              itemBuilder: (context, index) {
-                final post = posts[index];
-                final title = post.title ?? "Undefined";
-                final firstCharacter = title.substring(0, 1);
-                return ListTile(
-                  leading: Container(
-                      width: 40,
-                      height: 40,
-                      alignment: Alignment.centerLeft,
-                      child: new SizedBox(
-                          child: FloatingActionButton(
-                        heroTag: "$index",
-                        backgroundColor: Colors.blue,
-                        child: Text(
-                          firstCharacter,
-                          style: TextStyle(color: Colors.white, fontSize: 16.0),
-                        ),
-                        onPressed: null,
-                      ))),
-                  title: Text(
-                    title,
-                    style: TextStyle(
-                        color: post.isRead ? Colors.black : Colors.red),
-                  ),
-                  subtitle: Text(post.createdDate ?? "Undefined"),
-                  onTap: () async {
-                    if (!post.isRead) {
-                      loadingOverlay.show();
-                      await bloc.updatePostStatus(context, post.id);
-                      loadingOverlay.hide();
-                    }
-                    context.navigateTo(PostDetailsScreen(postId: post.id));
-                  },
-                );
-              },
-              separatorBuilder: (BuildContext context, int index) => Divider(),
-              itemCount: posts.length,
+        itemBuilder: (context, index) {
+          final post = posts[index];
+          final title = post.title ?? "Undefined";
+          final subtile = post.content ?? "Undefined";
+          final firstCharacter = title.substring(0, 1);
+          return InkWell(
+            onTap: ()async{
+              if (!post.isRead) {
+                loadingOverlay.show();
+                await bloc.updatePostStatus(context, post.id);
+                loadingOverlay.hide();
+              }
+              context.navigateTo(PostDetailsScreen(postId: post.id));
+            },
+            child: ItemListPost(
+            index:index,
+            firstCharacter:firstCharacter,
+            title:title,
+            subtile:subtile,
+            createdDate:post.createdDate,
+            isRead:post.isRead,
             ),
+          );
+        },
+        separatorBuilder: (BuildContext context, int index) => Divider(height: 2,color: Colors.grey,),
+        itemCount: posts.length,
+      ),
     );
   }
 }
-
 void showPostDetailsOnTap(BuildContext context, ListPostsBloc bloc,
     Map<String, dynamic> message) async {
   String postId = "0";
