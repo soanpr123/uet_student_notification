@@ -10,6 +10,8 @@ import 'package:uet_student_notification/DataLayer/user.dart';
 import 'package:uet_student_notification/UI/log_in_screen.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
 
+import '../Common/common.dart';
+
 class APIClient {
   final _baseUrl = "thongbao.uet.vnu.edu.vn";
   final _contextRoot = 'api';
@@ -71,6 +73,7 @@ class APIClient {
         },
         accessToken: accessToken);
     if (result != null) {
+      print(result);
       return PagePost.fromJson(result);
     }
     return null;

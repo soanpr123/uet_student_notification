@@ -9,7 +9,7 @@ import 'package:uet_student_notification/DataLayer/api_client.dart';
 import 'package:uet_student_notification/DataLayer/post.dart';
 import 'package:uet_student_notification/UI/log_in_screen.dart';
 
-class ListPostsBloc extends Bloc{
+class ListPostsBloc extends Bloc {
   final _client = APIClient();
   List<Post> list = new List();
   int currentPage = 1;
@@ -29,20 +29,31 @@ class ListPostsBloc extends Bloc{
     _usernameController.sink.add(username);
   }
 
-  void logOut(BuildContext context) async{
+  void logOut(BuildContext context) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setInt(Common.USER_ID,null);
+    await preferences.setInt(Common.USER_ID, null);
     await preferences.setString(Common.ACCESS_TOKEN, "");
     await preferences.setString(Common.TOKEN_TYPE, "");
-    await preferences.setBool(Common.IS_LOGGED_IN,null);
+    await preferences.setBool(Common.IS_LOGGED_IN, null);
     await preferences.setBool(Common.IS_UPDATE_FCM_TOKEN, null);
     context.replaceAllWith(LogInScreen());
   }
 
-  Future<void> loadListPosts(BuildContext context, bool isLoadMore) async{
-    if(isLoadMore){
+  Future<void> checkToken(BuildContext context, bool isLoadMore) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    final tokenType = preferences.getString(Common.TOKEN_TYPE);
+    final aToken = preferences.getString(Common.ACCESS_TOKEN);
+    final userId = preferences.getInt(Common.USER_ID);
+    final result = await _client.doGetListPosts(
+        context, userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
+    print("result la1 $result");
+    if (result != null) {}
+  }
+
+  Future<void> loadListPosts(BuildContext context, bool isLoadMore) async {
+    if (isLoadMore) {
       currentPage++;
-    }else{
+    } else {
       list.clear();
       currentPage = 1;
       _controller.sink.add(null);
@@ -51,10 +62,14 @@ class ListPostsBloc extends Bloc{
     final tokenType = preferences.getString(Common.TOKEN_TYPE);
     final aToken = preferences.getString(Common.ACCESS_TOKEN);
     final userId = preferences.getInt(Common.USER_ID);
-    final result = await _client.doGetListPosts(context, userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
-    if(result != null) {
+    final result = await _client.doGetListPosts(
+        context, userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
+
+    if (result != null) {
       final listPosts = result.data;
-      enableLoadMore = result.pagination.currentPage != result.pagination.lastPage;
+
+      enableLoadMore =
+          result.pagination.currentPage != result.pagination.lastPage;
       list.addAll(listPosts);
       _controller.sink.add(list);
       unreadPosts = result.pagination.total - result.pagination.countRead;
@@ -73,10 +88,12 @@ class ListPostsBloc extends Bloc{
     final tokenType = preferences.getString(Common.TOKEN_TYPE);
     final aToken = preferences.getString(Common.ACCESS_TOKEN);
     final userId = preferences.getInt(Common.USER_ID);
-    final isUpdateFcmToken = preferences.getBool(Common.IS_UPDATE_FCM_TOKEN) ?? false;
-    if(!isUpdateFcmToken){
-     final result = await _client.doUpdateToken(userId, "$tokenType $aToken",fcmToken);
-     await preferences.setBool(Common.IS_UPDATE_FCM_TOKEN, result);
+    final isUpdateFcmToken =
+        preferences.getBool(Common.IS_UPDATE_FCM_TOKEN) ?? false;
+    if (!isUpdateFcmToken) {
+      final result =
+          await _client.doUpdateToken(userId, "$tokenType $aToken", fcmToken);
+      await preferences.setBool(Common.IS_UPDATE_FCM_TOKEN, result);
     }
   }
 
@@ -85,13 +102,14 @@ class ListPostsBloc extends Bloc{
     final tokenType = preferences.getString(Common.TOKEN_TYPE);
     final aToken = preferences.getString(Common.ACCESS_TOKEN);
     final userId = preferences.getInt(Common.USER_ID);
-    final result = await _client.doUpdatePostStatus(context, userId, postId, true, "$tokenType $aToken");
-    for(Post post in list){
-      if(post.id == postId){
+    final result = await _client.doUpdatePostStatus(
+        context, userId, postId, true, "$tokenType $aToken");
+    for (Post post in list) {
+      if (post.id == postId) {
         post.isRead = result;
       }
     }
-    if(result){
+    if (result) {
       unreadPosts--;
       _unreadController.sink.add(unreadPosts);
     }
