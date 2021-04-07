@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -18,39 +19,51 @@ import 'package:uet_student_notification/main.dart';
 LoadingOverlay loadingOverlay;
 
 class ListPostsScreen extends StatelessWidget {
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final RefreshController _refreshController =
-  RefreshController(initialRefresh: false);
+      RefreshController(initialRefresh: false);
 
   final GlobalKey _keyTopBar = GlobalKey();
+  void Permison() async {
+    NotificationSettings settings = await _firebaseMessaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    print('User granted permission: ${settings.authorizationStatus}');
+  }
 
   @override
   Widget build(BuildContext context) {
     final bloc = ListPostsBloc();
     loadingOverlay = LoadingOverlay.of(context);
 
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print("UET onMessage: $message");
-        bloc.loadListPosts(context, false);
-      },
-      onBackgroundMessage: BackgroundMessageHandler,
-      onLaunch: (Map<String, dynamic> message) async {
-        print("UET onLaunch: $message");
-        showPostDetailsOnTap(context, bloc, message);
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print("UET onResume: $message");
-        bloc.loadListPosts(context, false);
-        showPostDetailsOnTap(context, bloc, message);
-      },
-    );
-    _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(
-            sound: true, badge: true, alert: true, provisional: true));
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage message) {
+      if (message != null) {
+        print("day la mess $message");
+      }
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification notification = message.notification;
+      AndroidNotification android = message.notification?.android;
+      print('A new onMessage event was published!${notification.body}');
+      // bloc.loadListPosts(context, false);
+      // if (notification != null && android != null) {
+      //
+      // }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('ADay la tin nhan on Tap $message');
+      // showPostDetailsOnTap(context, bloc, message);
     });
     _firebaseMessaging.getToken().then((String token) async {
       if (token != null) {
@@ -61,7 +74,9 @@ class ListPostsScreen extends StatelessWidget {
       await bloc.checkAndUpdateFcmToken();
       bloc.loadListPosts(context, false);
     });
-
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Permison();
+    });
     return BlocProvider<ListPostsBloc>(
       bloc: bloc,
       child: Scaffold(
@@ -159,8 +174,8 @@ class ListPostsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, List<Post> posts,
-      ListPostsBloc bloc) {
+  Widget _buildList(
+      BuildContext context, List<Post> posts, ListPostsBloc bloc) {
     return SmartRefresher(
       enablePullDown: true,
       enablePullUp: bloc.enableLoadMore,
@@ -176,43 +191,47 @@ class ListPostsScreen extends StatelessWidget {
       child: posts.isEmpty
           ? Container(child: Text("No posts"), alignment: Alignment.center)
           : ListView.separated(
-        itemBuilder: (context, index) {
-          final post = posts[index];
-          final title = post.title ?? "Undefined";
-          final subtile = post.content ?? "Undefined";
-          final firstCharacter = title.substring(0, 1);
-          return InkWell(
-            onTap: ()async{
-              if (!post.isRead) {
-                loadingOverlay.show();
-                await bloc.updatePostStatus(context, post.id);
-                loadingOverlay.hide();
-              }
-              context.navigateTo(PostDetailsScreen(postId: post.id));
-            },
-            child: ItemListPost(
-            index:index,
-            firstCharacter:firstCharacter,
-            title:title,
-            subtile:subtile,
-            createdDate:post.createdDate,
-            isRead:post.isRead,
+              itemBuilder: (context, index) {
+                final post = posts[index];
+                final title = post.title ?? "Undefined";
+                final subtile = post.content ?? "Undefined";
+                final firstCharacter = title.substring(0, 1);
+                return InkWell(
+                  onTap: () async {
+                    if (!post.isRead) {
+                      loadingOverlay.show();
+                      await bloc.updatePostStatus(context, post.id);
+                      loadingOverlay.hide();
+                    }
+                    context.navigateTo(PostDetailsScreen(postId: post.id));
+                  },
+                  child: ItemListPost(
+                    index: index,
+                    firstCharacter: firstCharacter,
+                    title: title,
+                    subtile: subtile,
+                    createdDate: post.createdDate,
+                    isRead: post.isRead,
+                  ),
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) => Divider(
+                height: 2,
+                color: Colors.grey,
+              ),
+              itemCount: posts.length,
             ),
-          );
-        },
-        separatorBuilder: (BuildContext context, int index) => Divider(height: 2,color: Colors.grey,),
-        itemCount: posts.length,
-      ),
     );
   }
 }
+
 void showPostDetailsOnTap(BuildContext context, ListPostsBloc bloc,
     Map<String, dynamic> message) async {
   String postId = "0";
-  if(Platform.isAndroid) {
+  if (Platform.isAndroid) {
     final dynamic data = message['data'];
     postId = data["post_id"];
-  }else if(Platform.isIOS){
+  } else if (Platform.isIOS) {
     postId = message['post_id'];
   }
   final id = int.parse(postId);
