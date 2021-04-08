@@ -31,7 +31,7 @@ dependencies:
   shared_preferences: ^2.0.5
   progress_dialog: ^1.2.4
   pull_to_refresh: 1.6.4
-  firebase_core: ^1.0.2
+  firebase_core: ^1.0.3
   firebase_messaging: ^9.1.1
   intl: ^0.16.1
   loadmore: ^1.0.4

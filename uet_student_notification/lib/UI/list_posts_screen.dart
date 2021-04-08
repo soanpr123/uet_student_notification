@@ -36,6 +36,11 @@ class ListPostsScreen extends StatelessWidget {
     );
 
     print('User granted permission: ${settings.authorizationStatus}');
+   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+     badge: true,
+     sound: true
+    );
   }
 
   @override
@@ -54,16 +59,16 @@ class ListPostsScreen extends StatelessWidget {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification notification = message.notification;
       AndroidNotification android = message.notification?.android;
-      print('A new onMessage event was published!${notification.body}');
-      // bloc.loadListPosts(context, false);
+      print('UET messenger : ${notification.body}');
+      bloc.loadListPosts(context, false);
       // if (notification != null && android != null) {
       //
       // }
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('ADay la tin nhan on Tap $message');
-      // showPostDetailsOnTap(context, bloc, message);
+      print('ADay la tin nhan on Tap ${message.data}');
+      showPostDetailsOnTap(context, bloc, message.data);
     });
     _firebaseMessaging.getToken().then((String token) async {
       if (token != null) {
@@ -74,9 +79,7 @@ class ListPostsScreen extends StatelessWidget {
       await bloc.checkAndUpdateFcmToken();
       bloc.loadListPosts(context, false);
     });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Permison();
-    });
     return BlocProvider<ListPostsBloc>(
       bloc: bloc,
       child: Scaffold(
@@ -229,8 +232,7 @@ void showPostDetailsOnTap(BuildContext context, ListPostsBloc bloc,
     Map<String, dynamic> message) async {
   String postId = "0";
   if (Platform.isAndroid) {
-    final dynamic data = message['data'];
-    postId = data["post_id"];
+    postId = message["post_id"];
   } else if (Platform.isIOS) {
     postId = message['post_id'];
   }

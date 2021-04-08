@@ -73,7 +73,6 @@ class APIClient {
         },
         accessToken: accessToken);
     if (result != null) {
-      print(result);
       return PagePost.fromJson(result);
     }
     return null;

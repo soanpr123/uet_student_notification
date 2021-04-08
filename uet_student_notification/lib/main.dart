@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uet_student_notification/UI/home_screen.dart';
 import 'package:uet_student_notification/Common/navigation_extension.dart';
@@ -12,8 +13,13 @@ import 'UI/log_in_screen.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
+  final bloc = ListPostsBloc();
+bloc.loadListPosts(MyApp.navigatorKey.currentContext, false);
   await Firebase.initializeApp();
-  print('Handling a background message ${message.messageId}');
+  print('Handling a background message ${bloc.unread.first.then((value) {
+    print("value $value");
+    FlutterAppBadger.updateBadgeCount(value);
+  })}');
 }
 
 void main() async{
@@ -25,15 +31,6 @@ void main() async{
   runApp(MyApp());
 }
 
-Future<dynamic> BackgroundMessageHandler(Map<String, dynamic> message) {
-  print(message);
-  if (message.containsKey('data')) {
-    final dynamic data = message['data'];
-  } else if (message.containsKey('notification')) {
-    final dynamic notification = message['notification'];
-    print("background  notification $notification");
-  }
-}
 
 class MyApp extends StatelessWidget with WidgetsBindingObserver {
   static final navigatorKey = new GlobalKey<NavigatorState>();

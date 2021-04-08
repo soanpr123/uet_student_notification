@@ -31,4 +31,9 @@ class PostDetailsBloc extends Bloc {
     _controller.close();
     _titleController.close();
   }
+
+  @override
+  void init() {
+    // TODO: implement init
+  }
 }

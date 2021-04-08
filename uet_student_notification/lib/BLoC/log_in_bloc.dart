@@ -59,4 +59,9 @@ class LogInBloc extends Bloc {
     _controllerUsername.close();
     _controllerPass.close();
   }
+
+  @override
+  void init() {
+    // TODO: implement init
+  }
 }
