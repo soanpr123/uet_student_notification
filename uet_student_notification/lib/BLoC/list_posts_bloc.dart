@@ -47,7 +47,6 @@ class ListPostsBloc extends Bloc {
     final userId = preferences.getInt(Common.USER_ID);
     final result = await _client.doGetListPosts(
         context, userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
-    print("result la1 $result");
     if (result != null) {}
   }
 

@@ -47,7 +47,6 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
         SharedPreferences preferences = await SharedPreferences.getInstance();
 
         final aToken = preferences.getString(ACCESS_TOKEN);
-        print(aToken);
         if(aToken!=""){
           bloc.checkToken(navigatorKey.currentContext, false);
         }

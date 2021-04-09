@@ -20,12 +20,12 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
+	<key>FirebaseScreenReportingEnabled</key>
+	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>FirebaseScreenReportingEnabled</key>
-    <true/>
-	<key>FirebaseAppDelegateProxyEnabled</key>
-    <false/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

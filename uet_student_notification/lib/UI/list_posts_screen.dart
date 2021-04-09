@@ -59,7 +59,7 @@ class ListPostsScreen extends StatelessWidget {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification notification = message.notification;
       AndroidNotification android = message.notification?.android;
-      print('UET messenger : ${notification.body}');
+      print('UET messenger : ${message.contentAvailable}');
       bloc.loadListPosts(context, false);
       // if (notification != null && android != null) {
       //
@@ -183,6 +183,22 @@ class ListPostsScreen extends StatelessWidget {
       enablePullDown: true,
       enablePullUp: bloc.enableLoadMore,
       controller: _refreshController,
+      footer:CustomFooter(
+        loadStyle: LoadStyle.ShowAlways,
+        builder: (context, mode) {
+          if (mode == LoadStatus.loading) {
+            return Container(
+              height: 60.0,
+              child: Container(
+                height: 20.0,
+                width: 20.0,
+                child: CupertinoActivityIndicator(),
+              ),
+            );
+          } else
+            return Container();
+        },
+      ),
       onLoading: () async {
         _refreshController.loadComplete();
         bloc.loadListPosts(context, true);
