@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/post_details_bloc.dart';
@@ -85,7 +86,27 @@ class PostDetailsScreen extends StatelessWidget {
                     shrinkWrap: true,
                     onLinkTap: (url) {
                       _launchURL(url);
-                    }),
+                    },
+                    style: {
+                      // tables will have the below background color
+                      "table": Style(
+                        backgroundColor: Colors.white,
+                      ),
+                      // some other granular customizations are also possible
+                      "tr": Style(
+                        border: Border.all(color: Colors.black),
+                      ),
+                      "th": Style(
+
+                        backgroundColor: Colors.black54,
+                      ),
+                      "td": Style(
+                        alignment: Alignment.topLeft,
+                      ),
+                      // text that renders h1 elements will be red
+                      "h1": Style(color: Colors.black54),
+                    }
+                ),
                 alignment: Alignment.topCenter),
           );
         });
