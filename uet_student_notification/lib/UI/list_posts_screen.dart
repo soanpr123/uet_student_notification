@@ -59,7 +59,7 @@ class ListPostsScreen extends StatelessWidget {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification notification = message.notification;
       AndroidNotification android = message.notification?.android;
-      print('UET messenger : ${message.contentAvailable}');
+      print('UET messenger : ${message.data}');
       bloc.loadListPosts(context, false);
       // if (notification != null && android != null) {
       //
