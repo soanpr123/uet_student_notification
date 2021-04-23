@@ -5,6 +5,7 @@ class Post {
   String createdDate;
   String updatedDate;
   bool isRead = false;
+  String publicTime;
 
   Post(this.id);
 
@@ -14,5 +15,6 @@ class Post {
         content = json["post_content"],
         createdDate = json["created_at"],
         updatedDate = json["updated_at"],
-        isRead = json["is_read"] == 1;
+        isRead = json["is_read"] == 1,
+        publicTime = json["public_time"];
 }

@@ -74,12 +74,14 @@ class ListPostsScreen extends StatelessWidget {
       if (token != null) {
         print("FCM Token: $token");
         bloc.saveFcmToken(token);
+
       }
       bloc.loadUsername();
       await bloc.checkAndUpdateFcmToken();
-      bloc.loadListPosts(context, false);
+
     });
       Permison();
+    bloc.loadListPosts(context, false);
     return BlocProvider<ListPostsBloc>(
       bloc: bloc,
       child: Scaffold(
