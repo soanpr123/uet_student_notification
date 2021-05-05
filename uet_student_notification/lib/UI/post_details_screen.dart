@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
+
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uet_student_notification/BLoC/bloc_provider.dart';
 import 'package:uet_student_notification/BLoC/post_details_bloc.dart';
@@ -53,7 +54,7 @@ class PostDetailsScreen extends StatelessWidget {
         left: true,
         top: true,
         right: true,
-        bottom: true,
+        bottom: false,
         child: Container(
           margin: EdgeInsets.all(0.0),
           constraints: BoxConstraints.expand(),
@@ -80,12 +81,30 @@ class PostDetailsScreen extends StatelessWidget {
           loadingOverlay.hide();
           return SingleChildScrollView(
             child: Container(
-                child: Html(
-                    data: result.content,
-                    shrinkWrap: true,
-                    onLinkTap: (url) {
-                      _launchURL(url);
-                    }),
+                child: HtmlWidget(
+                  result.content,
+                  onTapUrl: (url){
+                    _launchURL(url);
+                  },
+                  customStylesBuilder: (element) {
+                    if (element.localName=='table'||element.localName=='th'||element.localName=='td') {
+                      return {
+                        'border':' 1px solid black',
+                        'border-collapse': 'collapse'
+                      };
+                    }
+
+                    return null;
+                  },
+
+                  // render a custom widget
+
+                  // set the default styling for text
+                  textStyle: TextStyle(fontSize: 14),
+
+                  // turn on `webView` if you need IFRAME support
+                  webView: true,
+                ),
                 alignment: Alignment.topCenter),
           );
         });

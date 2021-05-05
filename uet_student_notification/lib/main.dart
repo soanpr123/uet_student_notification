@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uet_student_notification/UI/home_screen.dart';
 import 'package:uet_student_notification/Common/navigation_extension.dart';
@@ -9,19 +10,27 @@ import 'Common/common.dart';
 import 'DataLayer/api_client.dart';
 import 'UI/log_in_screen.dart';
 
-void main() {
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  final bloc = ListPostsBloc();
+bloc.loadListPosts(MyApp.navigatorKey.currentContext, false);
+  await Firebase.initializeApp();
+  print('Handling a background message ${bloc.unread.first.then((value) {
+    print("value $value");
+    FlutterAppBadger.updateBadgeCount(value);
+  })}');
+}
+
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  // Set the background messaging handler early on, as a named top-level function
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(MyApp());
 }
 
-Future<dynamic> BackgroundMessageHandler(Map<String, dynamic> message) {
-  print(message);
-  if (message.containsKey('data')) {
-    final dynamic data = message['data'];
-  } else if (message.containsKey('notification')) {
-    final dynamic notification = message['notification'];
-    print("background  notification $notification");
-  }
-}
 
 class MyApp extends StatelessWidget with WidgetsBindingObserver {
   static final navigatorKey = new GlobalKey<NavigatorState>();
@@ -38,7 +47,6 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
         SharedPreferences preferences = await SharedPreferences.getInstance();
 
         final aToken = preferences.getString(ACCESS_TOKEN);
-        print(aToken);
         if(aToken!=""){
           bloc.checkToken(navigatorKey.currentContext, false);
         }

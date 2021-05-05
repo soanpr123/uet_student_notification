@@ -18,4 +18,9 @@ class HomeBLoc extends Bloc{
   void dispose() {
     _controller.close();
   }
+
+  @override
+  void init() {
+    // TODO: implement init
+  }
 }

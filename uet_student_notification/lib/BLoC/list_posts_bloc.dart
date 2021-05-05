@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uet_student_notification/BLoC/bloc.dart';
 import 'package:uet_student_notification/Common/common.dart' as Common;
@@ -8,10 +9,12 @@ import 'package:uet_student_notification/Common/navigation_extension.dart';
 import 'package:uet_student_notification/DataLayer/api_client.dart';
 import 'package:uet_student_notification/DataLayer/post.dart';
 import 'package:uet_student_notification/UI/log_in_screen.dart';
+import 'package:uet_student_notification/main.dart';
 
 class ListPostsBloc extends Bloc {
   final _client = APIClient();
   List<Post> list = new List();
+  List<Post> listPost = new List();
   int currentPage = 1;
   static const PAGE_SIZE = 10;
   bool enableLoadMore = true;
@@ -31,11 +34,11 @@ class ListPostsBloc extends Bloc {
 
   void logOut(BuildContext context) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setInt(Common.USER_ID, null);
+    await preferences.setInt(Common.USER_ID, 0);
     await preferences.setString(Common.ACCESS_TOKEN, "");
     await preferences.setString(Common.TOKEN_TYPE, "");
-    await preferences.setBool(Common.IS_LOGGED_IN, null);
-    await preferences.setBool(Common.IS_UPDATE_FCM_TOKEN, null);
+    await preferences.setBool(Common.IS_LOGGED_IN, false);
+    await preferences.setBool(Common.IS_UPDATE_FCM_TOKEN, false);
     context.replaceAllWith(LogInScreen());
   }
 
@@ -46,7 +49,6 @@ class ListPostsBloc extends Bloc {
     final userId = preferences.getInt(Common.USER_ID);
     final result = await _client.doGetListPosts(
         context, userId, currentPage, PAGE_SIZE, "$tokenType $aToken");
-    print("result la1 $result");
     if (result != null) {}
   }
 
@@ -67,10 +69,19 @@ class ListPostsBloc extends Bloc {
 
     if (result != null) {
       final listPosts = result.data;
-
+// print(listPosts[0].publicTime);
       enableLoadMore =
           result.pagination.currentPage != result.pagination.lastPage;
       list.addAll(listPosts);
+final ids=list.map((e) => e.id).toSet();
+list.retainWhere((x) => ids.remove(x.id));
+      list.sort((a, b) {
+        if(b.publicTime!=null && a.publicTime!=null){
+          return b.publicTime.compareTo(a.publicTime);
+        }
+        return a.createdDate.compareTo(b.createdDate);
+      });
+
       _controller.sink.add(list);
       unreadPosts = result.pagination.total - result.pagination.countRead;
       _unreadController.sink.add(unreadPosts);
@@ -90,11 +101,10 @@ class ListPostsBloc extends Bloc {
     final userId = preferences.getInt(Common.USER_ID);
     final isUpdateFcmToken =
         preferences.getBool(Common.IS_UPDATE_FCM_TOKEN) ?? false;
-    if (!isUpdateFcmToken) {
       final result =
           await _client.doUpdateToken(userId, "$tokenType $aToken", fcmToken);
       await preferences.setBool(Common.IS_UPDATE_FCM_TOKEN, result);
-    }
+
   }
 
   Future<void> updatePostStatus(BuildContext context, int postId) async {
@@ -121,5 +131,10 @@ class ListPostsBloc extends Bloc {
     _usernameController.close();
     _controller.close();
     _unreadController.close();
+  }
+
+  @override
+  void init() {
+    // TODO: implement init
   }
 }

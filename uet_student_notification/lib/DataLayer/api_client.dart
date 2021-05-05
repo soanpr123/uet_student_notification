@@ -39,7 +39,9 @@ class APIClient {
         user.accessToken = result['access_token'];
         user.tokenType = result['token_type'];
         user.expireDate = result['expires_at'];
+        print(user.id);
         return user;
+
       } on Exception catch (e) {
         print(e);
       }
@@ -57,6 +59,7 @@ class APIClient {
       final isSuccess = result["status"] == "true";
       final message = result["message"];
       print(message);
+      // print(result);
       return isSuccess;
     }
     return false;
@@ -72,8 +75,8 @@ class APIClient {
           "page_size": pageSize.toString()
         },
         accessToken: accessToken);
+    print(accessToken);
     if (result != null) {
-      print(result);
       return PagePost.fromJson(result);
     }
     return null;
