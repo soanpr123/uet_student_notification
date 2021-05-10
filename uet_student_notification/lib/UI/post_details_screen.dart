@@ -83,13 +83,15 @@ class PostDetailsScreen extends StatelessWidget {
             child: Container(
                 child: HtmlWidget(
                   result.content,
-                  onTapUrl: (url){
+                  onTapUrl: (url) {
                     _launchURL(url);
                   },
                   customStylesBuilder: (element) {
-                    if (element.localName=='table'||element.localName=='th'||element.localName=='td') {
+                    if (element.localName == 'table' ||
+                        element.localName == 'th' ||
+                        element.localName == 'td') {
                       return {
-                        'border':' 1px solid black',
+                        'border': ' 1px solid black',
                         'border-collapse': 'collapse'
                       };
                     }

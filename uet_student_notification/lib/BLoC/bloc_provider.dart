@@ -21,12 +21,12 @@ class BlocProvider<T extends Bloc> extends StatefulWidget {
 }
 
 class _BlocProviderState extends State<BlocProvider> {
-
   @override
   Widget build(BuildContext context) {
     return widget.child;
   }
-@override
+
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -34,6 +34,7 @@ class _BlocProviderState extends State<BlocProvider> {
       widget.bloc.init();
     });
   }
+
   @override
   void dispose() {
     widget.bloc.dispose();

@@ -2,7 +2,6 @@ import 'package:intl/intl.dart';
 import 'package:uet_student_notification/DataLayer/post.dart';
 
 class PagePost {
-
   Pagination pagination;
   List<Post> data = List();
 
@@ -17,10 +16,10 @@ class PagePost {
       DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
       json['data'].forEach((v) {
         final post = Post.fromJson(v);
-        if(post.createdDate != null) {
+        if (post.createdDate != null) {
           DateTime dateTime = format.parse(post.createdDate, true).toLocal();
-          String formattedDate = DateFormat('kk:mm:ss EEE d-MM-yyyy').format(
-              dateTime);
+          String formattedDate =
+              DateFormat('kk:mm:ss EEE d-MM-yyyy').format(dateTime);
           post.createdDate = formattedDate;
         }
         data.add(post);
@@ -41,12 +40,12 @@ class Pagination {
 
   Pagination(
       {this.total,
-        this.perPage,
-        this.currentPage,
-        this.lastPage,
-        this.from,
-        this.to,
-        this.countRead});
+      this.perPage,
+      this.currentPage,
+      this.lastPage,
+      this.from,
+      this.to,
+      this.countRead});
 
   Pagination.fromJson(Map<String, dynamic> json) {
     total = json['total'];

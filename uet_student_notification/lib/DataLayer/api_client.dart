@@ -13,7 +13,7 @@ import 'package:uet_student_notification/Common/common.dart' as Common;
 import '../Common/common.dart';
 
 class APIClient {
-  final _baseUrl = "thongbao.uet.vnu.edu.vn";
+  final _baseUrl = "notify.bhsoft.co";
   final _contextRoot = 'api';
   final _login = "auth/ldap/login";
   final _updateFCMToken = "v1/update-firebase-token";
@@ -39,9 +39,7 @@ class APIClient {
         user.accessToken = result['access_token'];
         user.tokenType = result['token_type'];
         user.expireDate = result['expires_at'];
-        print(user.id);
         return user;
-
       } on Exception catch (e) {
         print(e);
       }
@@ -58,8 +56,6 @@ class APIClient {
     if (result != null) {
       final isSuccess = result["status"] == "true";
       final message = result["message"];
-      print(message);
-      // print(result);
       return isSuccess;
     }
     return false;
@@ -75,7 +71,6 @@ class APIClient {
           "page_size": pageSize.toString()
         },
         accessToken: accessToken);
-    print(accessToken);
     if (result != null) {
       return PagePost.fromJson(result);
     }
@@ -187,6 +182,7 @@ class APIClient {
       Map<String, String> parameters,
       String accessToken}) async {
     final uri = Uri.https(_baseUrl, '$_contextRoot/$path', parameters);
+
     final results = await http
         .get(uri, headers: _headersWithToken(accessToken))
         .catchError((Object error) {

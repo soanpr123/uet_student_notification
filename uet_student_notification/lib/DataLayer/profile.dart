@@ -11,14 +11,14 @@ class Profile {
 
   Profile(
       {this.id,
-        this.userId,
-        this.fullname,
-        this.birthday,
-        this.gender,
-        this.address,
-        this.phone,
-        this.createdAt,
-        this.updatedAt});
+      this.userId,
+      this.fullname,
+      this.birthday,
+      this.gender,
+      this.address,
+      this.phone,
+      this.createdAt,
+      this.updatedAt});
 
   Profile.fromJson(Map<String, dynamic> json) {
     id = json['id'];

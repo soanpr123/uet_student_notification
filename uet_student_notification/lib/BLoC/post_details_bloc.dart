@@ -19,8 +19,9 @@ class PostDetailsBloc extends Bloc {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     final tokenType = preferences.getString(Common.TOKEN_TYPE);
     final aToken = preferences.getString(Common.ACCESS_TOKEN);
-    Post post = await _client.doGetPostDetails(context, postId, "$tokenType $aToken");
-    if(post != null) {
+    Post post =
+        await _client.doGetPostDetails(context, postId, "$tokenType $aToken");
+    if (post != null) {
       _titleController.sink.add(post.title);
     }
     _controller.sink.add(post);

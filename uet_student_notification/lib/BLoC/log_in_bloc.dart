@@ -24,6 +24,7 @@ class LogInBloc extends Bloc {
   void setShowError(bool isShowError) {
     _showErrorController.sink.add(isShowError);
   }
+
   Future<bool> doLogin(String username, String password) async {
     final user = await _client.doLogin(username, password);
     SharedPreferences preferences = await SharedPreferences.getInstance();

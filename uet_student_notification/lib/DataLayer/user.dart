@@ -19,7 +19,8 @@ class User {
         roleId = json["role_id"],
         username = json["username"],
         email = json["email"],
-        profile = json['profile'] != null ? Profile.fromJson(json['profile']) : null,
+        profile =
+            json['profile'] != null ? Profile.fromJson(json['profile']) : null,
         firebaseToken = json["firebase_token"],
         emailVerifiedDate = json["email_verified_at"],
         createdDate = json["created_at"],

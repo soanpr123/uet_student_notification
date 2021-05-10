@@ -36,11 +36,9 @@ class ListPostsScreen extends StatelessWidget {
     );
 
     print('User granted permission: ${settings.authorizationStatus}');
-   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-      alert: true,
-     badge: true,
-     sound: true
-    );
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+            alert: true, badge: true, sound: true);
   }
 
   @override
@@ -57,30 +55,20 @@ class ListPostsScreen extends StatelessWidget {
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification notification = message.notification;
-      AndroidNotification android = message.notification?.android;
-      print('UET messenger : ${message.data}');
       bloc.loadListPosts(context, false);
-      // if (notification != null && android != null) {
-      //
-      // }
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('ADay la tin nhan on Tap ${message.data}');
       showPostDetailsOnTap(context, bloc, message.data);
     });
     _firebaseMessaging.getToken().then((String token) async {
       if (token != null) {
-        print("FCM Token: $token");
         bloc.saveFcmToken(token);
-
       }
       bloc.loadUsername();
       await bloc.checkAndUpdateFcmToken();
-
     });
-      Permison();
+    Permison();
     bloc.loadListPosts(context, false);
     return BlocProvider<ListPostsBloc>(
       bloc: bloc,
@@ -185,7 +173,7 @@ class ListPostsScreen extends StatelessWidget {
       enablePullDown: true,
       enablePullUp: bloc.enableLoadMore,
       controller: _refreshController,
-      footer:CustomFooter(
+      footer: CustomFooter(
         loadStyle: LoadStyle.ShowAlways,
         builder: (context, mode) {
           if (mode == LoadStatus.loading) {

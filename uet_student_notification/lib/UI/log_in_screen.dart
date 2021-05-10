@@ -8,10 +8,10 @@ import 'package:uet_student_notification/Common/navigation_extension.dart';
 import 'package:uet_student_notification/UI/list_posts_screen.dart';
 
 LoadingOverlay loadingOverlay;
+
 class LogInScreen extends StatelessWidget {
   final usernameTextController = TextEditingController();
   final passwordTextController = TextEditingController();
-
 
   @override
   Widget build(BuildContext context) {
@@ -94,48 +94,46 @@ class LogInScreen extends StatelessWidget {
 
   Widget _buildEnterUsername(LogInBloc bloc) {
     return StreamBuilder(
-      stream: bloc.streamUsername,
-      builder: (context, snapshot) {
-        String username = snapshot.hasData ? snapshot.data : null;
-        usernameTextController.text = username;
-        return IntrinsicHeight(
-          child: TextField(
-            obscureText: false,
-            decoration: InputDecoration(
-              hintText: "Username",
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(Common.INPUT_RADIUS)),
-              fillColor: Colors.grey[100],
-              filled: true,
+        stream: bloc.streamUsername,
+        builder: (context, snapshot) {
+          String username = snapshot.hasData ? snapshot.data : null;
+          usernameTextController.text = username;
+          return IntrinsicHeight(
+            child: TextField(
+              obscureText: false,
+              decoration: InputDecoration(
+                hintText: "Username",
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(Common.INPUT_RADIUS)),
+                fillColor: Colors.grey[100],
+                filled: true,
+              ),
+              controller: usernameTextController,
             ),
-            controller: usernameTextController,
-          ),
-        );
-      }
-    );
+          );
+        });
   }
 
   Widget _buildEnterPassword(LogInBloc bloc) {
     return StreamBuilder(
-      stream: bloc.streamPass,
-      builder: (context, snapshot) {
-        String pass = snapshot.hasData ? snapshot.data : null;
-        passwordTextController.text = pass;
-        return IntrinsicHeight(
-          child: TextField(
-            obscureText: true,
-            decoration: InputDecoration(
-              hintText: "Password",
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(Common.INPUT_RADIUS)),
-              fillColor: Colors.grey[100],
-              filled: true,
+        stream: bloc.streamPass,
+        builder: (context, snapshot) {
+          String pass = snapshot.hasData ? snapshot.data : null;
+          passwordTextController.text = pass;
+          return IntrinsicHeight(
+            child: TextField(
+              obscureText: true,
+              decoration: InputDecoration(
+                hintText: "Password",
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(Common.INPUT_RADIUS)),
+                fillColor: Colors.grey[100],
+                filled: true,
+              ),
+              controller: passwordTextController,
             ),
-            controller: passwordTextController,
-          ),
-        );
-      }
-    );
+          );
+        });
   }
 
   Widget _buildLoginButton(LogInBloc bloc, BuildContext context) {

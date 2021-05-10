@@ -17,7 +17,7 @@ const String IS_UPDATE_FCM_TOKEN = "is_update_fcm_token";
 const double PADDING = 16.0;
 const double INPUT_RADIUS = 10.0;
 
-void showToast(String message){
+void showToast(String message) {
   Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,
@@ -25,8 +25,7 @@ void showToast(String message){
       timeInSecForIosWeb: 1,
       backgroundColor: Colors.black45,
       textColor: Colors.white,
-      fontSize: 16.0
-  );
+      fontSize: 16.0);
 }
 
 // final Map<String, Post> _items = <String, Post>{};

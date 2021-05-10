@@ -69,14 +69,13 @@ class ListPostsBloc extends Bloc {
 
     if (result != null) {
       final listPosts = result.data;
-// print(listPosts[0].publicTime);
       enableLoadMore =
           result.pagination.currentPage != result.pagination.lastPage;
       list.addAll(listPosts);
-final ids=list.map((e) => e.id).toSet();
-list.retainWhere((x) => ids.remove(x.id));
+      final ids = list.map((e) => e.id).toSet();
+      list.retainWhere((x) => ids.remove(x.id));
       list.sort((a, b) {
-        if(b.publicTime!=null && a.publicTime!=null){
+        if (b.publicTime != null && a.publicTime != null) {
           return b.publicTime.compareTo(a.publicTime);
         }
         return a.createdDate.compareTo(b.createdDate);
@@ -101,10 +100,9 @@ list.retainWhere((x) => ids.remove(x.id));
     final userId = preferences.getInt(Common.USER_ID);
     final isUpdateFcmToken =
         preferences.getBool(Common.IS_UPDATE_FCM_TOKEN) ?? false;
-      final result =
-          await _client.doUpdateToken(userId, "$tokenType $aToken", fcmToken);
-      await preferences.setBool(Common.IS_UPDATE_FCM_TOKEN, result);
-
+    final result =
+        await _client.doUpdateToken(userId, "$tokenType $aToken", fcmToken);
+    await preferences.setBool(Common.IS_UPDATE_FCM_TOKEN, result);
   }
 
   Future<void> updatePostStatus(BuildContext context, int postId) async {

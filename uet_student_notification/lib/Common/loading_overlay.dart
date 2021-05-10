@@ -12,7 +12,7 @@ class LoadingOverlay {
     showDialog(
         context: _context,
         barrierDismissible: false,
-        builder: (_context)=>_FullScreenLoader());
+        builder: (_context) => _FullScreenLoader());
   }
 
   Future<T> during<T>(Future<T> future) {

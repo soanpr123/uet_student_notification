@@ -14,7 +14,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   final bloc = ListPostsBloc();
-bloc.loadListPosts(MyApp.navigatorKey.currentContext, false);
+  bloc.loadListPosts(MyApp.navigatorKey.currentContext, false);
   await Firebase.initializeApp();
   print('Handling a background message ${bloc.unread.first.then((value) {
     print("value $value");
@@ -22,7 +22,7 @@ bloc.loadListPosts(MyApp.navigatorKey.currentContext, false);
   })}');
 }
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
@@ -30,7 +30,6 @@ void main() async{
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(MyApp());
 }
-
 
 class MyApp extends StatelessWidget with WidgetsBindingObserver {
   static final navigatorKey = new GlobalKey<NavigatorState>();
@@ -47,7 +46,7 @@ class MyApp extends StatelessWidget with WidgetsBindingObserver {
         SharedPreferences preferences = await SharedPreferences.getInstance();
 
         final aToken = preferences.getString(ACCESS_TOKEN);
-        if(aToken!=""){
+        if (aToken != "") {
           bloc.checkToken(navigatorKey.currentContext, false);
         }
 

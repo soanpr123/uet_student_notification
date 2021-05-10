@@ -7,13 +7,17 @@ class ItemListPost extends StatelessWidget {
   final String subtile;
   final String createdDate;
   final bool isRead;
-  ItemListPost({
-    this.index,this.title,this.firstCharacter,this.subtile,this.createdDate,this.isRead
-});
+  ItemListPost(
+      {this.index,
+      this.title,
+      this.firstCharacter,
+      this.subtile,
+      this.createdDate,
+      this.isRead});
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 15,vertical: 5),
+      margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
       height: 100,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -24,15 +28,17 @@ class ItemListPost extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: new SizedBox(
                   child: FloatingActionButton(
-                    heroTag: "$index",
-                    backgroundColor: Colors.blue,
-                    child: Text(
-                      firstCharacter,
-                      style: TextStyle(color: Colors.white, fontSize: 16.0),
-                    ),
-                    onPressed: null,
-                  ))),
-          SizedBox(width: 22.0,),
+                heroTag: "$index",
+                backgroundColor: Colors.blue,
+                child: Text(
+                  firstCharacter,
+                  style: TextStyle(color: Colors.white, fontSize: 16.0),
+                ),
+                onPressed: null,
+              ))),
+          SizedBox(
+            width: 22.0,
+          ),
           Expanded(
             child: Container(
               width: MediaQuery.of(context).size.width,
@@ -55,7 +61,9 @@ class ItemListPost extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     children: [
                       Flexible(
@@ -72,12 +80,15 @@ class ItemListPost extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     children: [
-                      Text(createdDate ?? "Undefined",style: TextStyle(
-                          fontSize: 13
-                      ),),
+                      Text(
+                        createdDate ?? "Undefined",
+                        style: TextStyle(fontSize: 13),
+                      ),
                     ],
                   ),
                 ],
